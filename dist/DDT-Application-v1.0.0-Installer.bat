@@ -67,17 +67,14 @@ reg add "HKEY_CLASSES_ROOT\DDTApplication\shell\open\command" /ve /d "\"%PROGRAM
 echo ✅ Associazione file .ddt configurata
 echo.
 
-REM Crea script di avvio
-echo Creazione script di avvio...
-(
-echo @echo off
-echo cd /d "%PROGRAMFILES%\DDT Application\app"
-echo set "PYTHONPATH=%PROGRAMFILES%\DDT Application\app"
-echo set "DJANGO_SETTINGS_MODULE=ddt_project.settings_offline"
-echo python manage.py runserver 127.0.0.1:8000
-echo pause
-) > "%PROGRAMFILES%\DDT Application\scripts\start_ddt.bat"
-echo ✅ Script di avvio creato
+REM Copia script di avvio
+echo Copia script di avvio...
+if exist "scripts\start_ddt.bat" (
+    copy "scripts\start_ddt.bat" "%PROGRAMFILES%\DDT Application\scripts\"
+    echo ✅ Script di avvio copiato
+) else (
+    echo ⚠️  AVVISO: Script start_ddt.bat non trovato
+)
 echo.
 
 REM Crea script di aggiornamento

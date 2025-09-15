@@ -15,10 +15,12 @@ Un'applicazione Django completa per la gestione dei Documenti di Trasporto (DDT)
 
 ### Per Windows (Consigliato)
 
-1. **Scarica** l'installer: `DDT_Complete_Setup.exe`
-2. **Esegui** l'installer come amministratore
-3. **Segui** la procedura guidata
-4. **Avvia** l'applicazione dal desktop
+1. **Vai su**: [GitHub Releases](https://github.com/PatrikBaldon/DDT-Application/releases)
+2. **Scarica**: `DDT-Application-v1.0.1-Complete.zip`
+3. **Estrai** i file in una cartella
+4. **Esegui** `DDT-Application-v1.0.1-Installer.bat` **come amministratore**
+5. **Segui** la procedura guidata
+6. **Avvia** l'applicazione dal desktop o Start Menu
 
 ### Installazione Manuale
 
@@ -61,7 +63,11 @@ DDT-Application/
 
 ### Avvio dell'Applicazione
 
-- **Windows**: Doppio clic su "DDT Application" dal desktop
+- **Windows (Installato)**: 
+  - Doppio clic su "DDT Application" dal desktop
+  - Oppure dal menu Start → "DDT Application"
+  - Oppure esegui `start_ddt.bat` dalla directory di installazione
+- **Windows (Portable)**: Esegui `start_ddt.bat` dalla cartella dell'applicazione
 - **Manuale**: `python manage.py runserver`
 
 ### Gestione DDT
@@ -73,15 +79,20 @@ DDT-Application/
 
 ### Aggiornamenti
 
+**Windows (Installato)**:
 ```bash
-# Controlla aggiornamenti
-check_version.bat
+# Dalla directory di installazione (C:\Program Files\DDT Application\scripts)
+check_version.bat    # Controlla aggiornamenti
+update_ddt.bat       # Aggiorna applicazione
+rollback_ddt.bat     # Ripristina versione precedente
+```
 
-# Aggiorna applicazione
-update_ddt.bat
-
-# Ripristina versione precedente
-rollback_ddt.bat
+**Windows (Portable)**:
+```bash
+# Dalla cartella dell'applicazione
+scripts\check_version.bat    # Controlla aggiornamenti
+scripts\update_ddt.bat       # Aggiorna applicazione
+scripts\rollback_ddt.bat     # Ripristina versione precedente
 ```
 
 ## 🛠️ Sviluppo
