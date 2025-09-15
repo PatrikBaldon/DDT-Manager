@@ -1,0 +1,41 @@
+{
+    "application": {
+        "name": "DDT - Azienda Agricola BB&F",
+        "version": "1.0.0",
+        "language": "it",
+        "theme": "system",
+        "auto_save": true,
+        "auto_save_interval": 5,
+        "remember_window_position": true,
+        "remember_window_size": true
+    },
+    "company": {
+        "name": "Azienda Agricola BB&F",
+        "address": "",
+        "city": "",
+        "zip_code": "",
+        "province": "",
+        "phone": "",
+        "email": "",
+        "vat_number": "",
+        "fiscal_code": ""
+    },
+    "database": {
+        "path": "data/database/ddt.db",
+        "auto_backup": true,
+        "backup_frequency": "weekly"
+    },
+    "pdf": {
+        "export_path": "data/exports/",
+        "include_logo": true,
+        "auto_open": true,
+        "template": "standard"
+    },
+    "paths": {
+        "database": "data/database/",
+        "exports": "data/exports/",
+        "templates": "data/templates/",
+        "assets": "assets/"
+    }
+}
+

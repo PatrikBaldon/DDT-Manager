@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ destinatario.nome }} - Dettaglio Destinatario{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-gradient">{{ destinatario.nome }}</h1>
+            <div class="btn-group">
+                <a href="{% url 'ddt_app:destinatario_edit' destinatario.id %}" class="btn btn-warning">
+                    Modifica
+                </a>
+                {% if destinatario.ddt_set.count > 0 %}
+                    <button class="btn btn-outline-secondary" disabled title="Impossibile eliminare: ci sono DDT associati">
+                        Elimina
+                    </button>
+                {% else %}
+                    <a href="{% url 'ddt_app:destinatario_delete' destinatario.id %}" class="btn btn-danger">
+                        Elimina
+                    </a>
+                {% endif %}
+                <a href="{% url 'ddt_app:destinatario_list' %}" class="btn btn-outline-secondary">
+                    Torna alla lista
+                </a>
+            </div>
+        </div>
+
+        <!-- Informazioni Azienda -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Informazioni Azienda</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Nome:</strong> {{ destinatario.nome }}</p>
+                        <p><strong>P.IVA:</strong> {{ destinatario.piva }}</p>
+                        <p><strong>Codice Fiscale:</strong> {{ destinatario.cf }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Telefono:</strong> {{ destinatario.telefono }}</p>
+                        <p><strong>Email:</strong> {{ destinatario.email }}</p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <p><strong>Indirizzo:</strong> {{ destinatario.indirizzo }}</p>
+                        <p><strong>Città:</strong> {{ destinatario.citta }} ({{ destinatario.provincia }}) - {{ destinatario.cap }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Destinazioni -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Destinazioni ({{ destinazioni.count }})</h5>
+                <a href="{% url 'ddt_app:destinazione_create' destinatario.id %}" class="btn btn-primary btn-sm">
+                    Nuova Destinazione
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if destinazioni %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Nome Destinazione</th>
+                                    <th style="width: 35%;">Indirizzo</th>
+                                    <th style="width: 20%;">Cod. Stalla</th>
+                                    <th style="width: 20%;">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for destinazione in destinazioni %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ destinazione.nome|truncatechars:25 }}</strong>
+                                    </td>
+                                    <td>{{ destinazione.indirizzo|truncatechars:35 }}</td>
+                                    <td>
+                                        {% if destinazione.codice_stalla %}
+                                            <span class="badge">{{ destinazione.codice_stalla }}</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'ddt_app:destinazione_edit' destinazione.id %}" 
+                                               class="btn btn-outline-warning btn-sm" title="Modifica">
+                                                Mod
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <h4 class="text-muted">Nessuna destinazione configurata</h4>
+                        <p class="text-muted">Aggiungi una destinazione per questo destinatario</p>
+                        <a href="{% url 'ddt_app:destinazione_create' destinatario.id %}" class="btn btn-primary">
+                            Aggiungi Destinazione
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

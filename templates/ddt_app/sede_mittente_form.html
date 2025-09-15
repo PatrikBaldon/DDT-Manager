@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if sede %}
+        Modifica Sede - {{ sede.nome }}
+    {% else %}
+        Nuova Sede - {{ mittente.nome }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-gradient">
+                {% if sede %}
+                    Modifica Sede: {{ sede.nome }}
+                {% else %}
+                    Nuova Sede per {{ mittente.nome }}
+                {% endif %}
+            </h1>
+            <a href="{% url 'ddt_app:mittente_detail' mittente.id %}" class="btn btn-outline-secondary">
+                Torna al mittente
+            </a>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Informazioni Sede</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="nome" class="form-label">Nome Sede <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nome" name="nome" 
+                                       value="{{ sede.nome|default:'' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="codice_stalla" class="form-label">Codice Stalla</label>
+                                <input type="text" class="form-control" id="codice_stalla" name="codice_stalla" 
+                                       value="{{ sede.codice_stalla|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="indirizzo" class="form-label">Indirizzo <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="indirizzo" name="indirizzo" 
+                                       value="{{ sede.indirizzo|default:'' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="cap" class="form-label">CAP <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="cap" name="cap" 
+                                       value="{{ sede.cap|default:'' }}" required maxlength="5">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="citta" class="form-label">Città <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="citta" name="citta" 
+                                       value="{{ sede.citta|default:'' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="provincia" class="form-label">Provincia <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="provincia" name="provincia" 
+                                       value="{{ sede.provincia|default:'' }}" required maxlength="2" style="text-transform: uppercase;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sede_legale" name="sede_legale" 
+                                           {% if sede.sede_legale %}checked{% endif %}>
+                                    <label class="form-check-label" for="sede_legale">
+                                        Sede Legale
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="attiva" name="attiva" 
+                                           {% if not sede or sede.attiva %}checked{% endif %}>
+                                    <label class="form-check-label" for="attiva">
+                                        Attiva
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="note" class="form-label">Note</label>
+                        <textarea class="form-control" id="note" name="note" rows="3">{{ sede.note|default:'' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pulsanti -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'ddt_app:mittente_detail' mittente.id %}" class="btn btn-outline-secondary">
+                    Annulla
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    {% if sede %}Aggiorna Sede{% else %}Crea Sede{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Auto-uppercase per provincia
+document.getElementById('provincia').addEventListener('input', function(e) {
+    e.target.value = e.target.value.toUpperCase();
+});
+</script>
+{% endblock %}

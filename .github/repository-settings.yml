@@ -1,0 +1,50 @@
+# Repository Settings for DDT-Application
+# https://github.com/PatrikBaldon/DDT-Application
+
+repository:
+  name: "DDT-Application"
+  description: "Sistema di Gestione Documenti di Trasporto per Aziende Agricole"
+  homepage: "https://github.com/PatrikBaldon/DDT-Application"
+  topics:
+    - "django"
+    - "ddt"
+    - "agriculture"
+    - "pdf"
+    - "windows"
+    - "offline"
+    - "document-management"
+    - "transport-documents"
+    - "italian"
+    - "business"
+
+features:
+  issues: true
+  projects: true
+  wiki: true
+  discussions: true
+  pages: false
+
+branches:
+  default: "main"
+  protection:
+    - branch: "main"
+      required_status_checks:
+        strict: true
+        contexts:
+          - "test"
+      enforce_admins: true
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: true
+      restrictions: null
+
+security:
+  vulnerability_alerts: true
+  secret_scanning: true
+  secret_scanning_push_protection: true
+
+notifications:
+  security_updates: true
+  dependency_updates: true
+  discussions: true

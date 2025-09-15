@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vettori - DDT Management{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-gradient">Vettori</h1>
+            <a href="/admin/ddt_app/vettore/add/" class="btn btn-primary">
+                Nuovo Vettore
+            </a>
+        </div>
+
+        <!-- Search -->
+        <div class="card mb-4 animate-slide-in">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="search" 
+                                   value="{{ search }}" placeholder="Cerca per nome, autista, P.IVA...">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-outline-primary me-2">
+                            Cerca
+                        </button>
+                        <a href="{% url 'ddt_app:vettore_list' %}" class="btn btn-outline-secondary">
+                            Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Vettori List -->
+        <div class="card animate-slide-in">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    Aziende Vettori
+                    <span class="badge ms-2">{{ vettori.paginator.count }}</span>
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if vettori %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20%;">Nome Azienda</th>
+                                    <th style="width: 15%;">Autista</th>
+                                    <th style="width: 12%;">P.IVA</th>
+                                    <th style="width: 10%;">Tel</th>
+                                    <th style="width: 20%;">Email</th>
+                                    <th style="width: 8%;">Targhe</th>
+                                    <th style="width: 15%;">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vettore in vettori %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ vettore.nome|truncatechars:25 }}</strong>
+                                    </td>
+                                    <td>{{ vettore.autista|truncatechars:20 }}</td>
+                                    <td>{{ vettore.piva }}</td>
+                                    <td>{{ vettore.telefono|truncatechars:15 }}</td>
+                                    <td>{{ vettore.email|truncatechars:25 }}</td>
+                                    <td>
+                                        <span class="badge">{{ vettore.targhe.count }} targa{{ vettore.targhe.count|pluralize }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'ddt_app:vettore_detail' vettore.id %}" 
+                                               class="btn btn-outline-primary btn-sm" title="Visualizza">
+                                                Vedi
+                                            </a>
+                                            <a href="{% url 'ddt_app:vettore_edit' vettore.id %}" 
+                                               class="btn btn-outline-warning btn-sm" title="Modifica">
+                                                Mod
+                                            </a>
+                                            {% if vettore.ddt_set.count > 0 %}
+                                                <button class="btn btn-outline-secondary btn-sm" disabled title="Impossibile eliminare: ci sono DDT associati">
+                                                    Del
+                                                </button>
+                                            {% else %}
+                                                <a href="{% url 'ddt_app:vettore_delete' vettore.id %}" 
+                                                   class="btn btn-outline-danger btn-sm" title="Elimina">
+                                                    Del
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if vettori.has_other_pages %}
+                    <div class="card-footer">
+                        <nav aria-label="Paginazione Vettori">
+                            <ul class="pagination pagination-sm justify-content-center mb-0">
+                                {% if vettori.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}">
+                                            Prima
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ vettori.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                                            Precedente
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                <li class="page-item active">
+                                    <span class="page-link">
+                                        Pagina {{ vettori.number }} di {{ vettori.paginator.num_pages }}
+                                    </span>
+                                </li>
+
+                                {% if vettori.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ vettori.next_page_number }}{% if search %}&search={{ search }}{% endif %}">
+                                            Successiva
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ vettori.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">
+                                            Ultima
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <h4 class="text-muted">Nessun vettore trovato</h4>
+                        <p class="text-muted">
+                            {% if search %}
+                                Nessun vettore corrisponde alla ricerca "{{ search }}"
+                            {% else %}
+                                Non ci sono ancora vettori nel sistema
+                            {% endif %}
+                        </p>
+                        {% if not search %}
+                            <a href="/admin/ddt_app/vettore/add/" class="btn btn-primary">
+                                Crea il primo vettore
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

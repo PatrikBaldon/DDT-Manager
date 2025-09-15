@@ -1,0 +1,181 @@
+{
+  "mittenti": [
+    {
+      "id": 1,
+      "nome": "Azienda Agricola Baldon Benedetto & Figli s.s.",
+      "indirizzo": "Via Roma 123, 12345 Città",
+      "cap": "12345",
+      "citta": "Città",
+      "provincia": "XX",
+      "piva": "12345678901",
+      "cf": "BBF12345678901",
+      "telefono": "0123456789",
+      "email": "info@bbf.it",
+      "pec": "pec@bbf.it",
+      "sede_legale": true,
+      "note": "Sede principale"
+    }
+  ],
+  "destinatari": [
+    {
+      "id": 1,
+      "nome": "Macelleria Rossi",
+      "indirizzo": "Via Milano 456, 54321 Città",
+      "cap": "54321",
+      "citta": "Città",
+      "provincia": "YY",
+      "piva": "98765432109",
+      "cf": "RSS12345678901",
+      "telefono": "0987654321",
+      "email": "info@macelleria-rossi.it",
+      "destinazioni": [
+        {
+          "nome": "Sede Principale",
+          "indirizzo": "Via Milano 456, 54321 Città",
+          "note": "Consegna mattutina"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "nome": "Supermercato Verde",
+      "indirizzo": "Via Verdi 789, 11111 Città",
+      "cap": "11111",
+      "citta": "Città",
+      "provincia": "ZZ",
+      "piva": "11111111111",
+      "cf": "SVR11111111111",
+      "telefono": "0111111111",
+      "email": "ordini@supermercato-verde.it",
+      "destinazioni": [
+        {
+          "nome": "Magazzino Centrale",
+          "indirizzo": "Via Verdi 789, 11111 Città",
+          "note": "Consegna pomeridiana"
+        },
+        {
+          "nome": "Punto Vendita Nord",
+          "indirizzo": "Via Nord 321, 22222 Città",
+          "note": "Consegna settimanale"
+        }
+      ]
+    }
+  ],
+  "causali_trasporto": [
+    "Vendita",
+    "Reso",
+    "Trasferimento tra sedi",
+    "Campione gratuito",
+    "Riparazione",
+    "Sostituzione",
+    "Omaggio",
+    "Vendita con sconto",
+    "Trasferimento magazzino",
+    "Altro"
+  ],
+  "vettori": [
+    {
+      "id": 1,
+      "nome": "Trasporti Veloci SRL",
+      "indirizzo": "Via Trasporti 789, 11111 Città",
+      "cap": "11111",
+      "citta": "Città",
+      "provincia": "TT",
+      "piva": "11111111111",
+      "cf": "TRV11111111111",
+      "telefono": "0111111111",
+      "email": "info@trasporti-veloci.it",
+      "autista": "Mario Rossi",
+      "patente": "B123456789",
+      "targa": "AB123CD",
+      "note": "Specializzato in trasporti refrigerati"
+    },
+    {
+      "id": 2,
+      "nome": "Logistica Express",
+      "indirizzo": "Via Logistica 456, 33333 Città",
+      "cap": "33333",
+      "citta": "Città",
+      "provincia": "LL",
+      "piva": "33333333333",
+      "cf": "LGE33333333333",
+      "telefono": "0333333333",
+      "email": "info@logistica-express.it",
+      "autista": "Giuseppe Bianchi",
+      "patente": "B987654321",
+      "targa": "EF456GH",
+      "note": "Servizio 24/7"
+    }
+  ],
+  "articoli": [
+    {
+      "id": 1,
+      "nome": "Vitello",
+      "categoria": "Bovini",
+      "um": "kg",
+      "prezzo_unitario": 15.50,
+      "note": "Vitello da latte"
+    },
+    {
+      "id": 2,
+      "nome": "Manzo",
+      "categoria": "Bovini",
+      "um": "kg",
+      "prezzo_unitario": 12.00,
+      "note": "Manzo adulto"
+    },
+    {
+      "id": 3,
+      "nome": "Maiale",
+      "categoria": "Suini",
+      "um": "kg",
+      "prezzo_unitario": 8.50,
+      "note": "Maiale da macello"
+    },
+    {
+      "id": 4,
+      "nome": "Pollo",
+      "categoria": "Pollame",
+      "um": "pz",
+      "prezzo_unitario": 6.00,
+      "note": "Pollo intero"
+    },
+    {
+      "id": 5,
+      "nome": "Coniglio",
+      "categoria": "Conigli",
+      "um": "pz",
+      "prezzo_unitario": 8.00,
+      "note": "Coniglio da macello"
+    },
+    {
+      "id": 6,
+      "nome": "Agnello",
+      "categoria": "Ovini",
+      "um": "kg",
+      "prezzo_unitario": 18.00,
+      "note": "Agnello da latte"
+    }
+  ],
+  "tipologie_trasporto": [
+    "Automezzo",
+    "Treno",
+    "Nave",
+    "Aereo",
+    "Motociclo",
+    "Bicicletta",
+    "A piedi"
+  ],
+  "unita_misura": [
+    "kg",
+    "hg",
+    "g",
+    "pz",
+    "l",
+    "ml",
+    "m",
+    "cm",
+    "m²",
+    "m³"
+  ]
+}

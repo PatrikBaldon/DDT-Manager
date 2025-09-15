@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Elimina Sede - {{ sede.nome }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-gradient">Elimina Sede</h1>
+            <a href="{% url 'ddt_app:mittente_detail' sede.mittente.id %}" class="btn btn-outline-secondary">
+                Torna al mittente
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Conferma Eliminazione</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">Attenzione!</h4>
+                    <p>Sei sicuro di voler eliminare la sede <strong>"{{ sede.nome }}"</strong>?</p>
+                    <p class="mb-0">Questa azione non può essere annullata.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Dettagli Sede</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Nome:</strong> {{ sede.nome }}</p>
+                                <p><strong>Indirizzo:</strong> {{ sede.indirizzo }}</p>
+                                <p><strong>Città:</strong> {{ sede.citta }} ({{ sede.provincia }})</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>CAP:</strong> {{ sede.cap }}</p>
+                                {% if sede.codice_stalla %}
+                                    <p><strong>Codice Stalla:</strong> {{ sede.codice_stalla }}</p>
+                                {% endif %}
+                                <p><strong>Sede Legale:</strong> 
+                                    {% if sede.sede_legale %}
+                                        <span class="badge" style="background-color: #10b981;">Sì</span>
+                                    {% else %}
+                                        <span class="text-muted">No</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'ddt_app:mittente_detail' sede.mittente.id %}" class="btn btn-outline-secondary">
+                            Annulla
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            Elimina Sede
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

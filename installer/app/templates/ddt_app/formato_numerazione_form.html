@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - DDT Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .form-section h5 {
+        color: #495057;
+        border-bottom: 2px solid #dee2e6;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    .custom-format {
+        display: none;
+    }
+    .format-example {
+        background: #e9ecef;
+        border-radius: 4px;
+        padding: 10px;
+        margin-top: 5px;
+        font-family: monospace;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-hashtag me-2"></i>{{ title }}</h1>
+            <a href="{% url 'ddt_app:home' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Torna alla Home
+            </a>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Configurazione Formato -->
+            <div class="form-section">
+                <h5><i class="fas fa-cog me-2"></i>Configurazione Formato</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.formato.id_for_label }}" class="form-label">
+                                Formato Numerazione <span class="text-danger">*</span>
+                            </label>
+                            {{ form.formato }}
+                            {% if form.formato.errors %}
+                                <div class="text-danger">{{ form.formato.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Esempio</label>
+                            <div id="format-example" class="format-example">
+                                Seleziona un formato per vedere l'esempio
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Formato personalizzato -->
+                <div id="custom-format" class="custom-format">
+                    <div class="mb-3">
+                        <label for="{{ form.formato_personalizzato.id_for_label }}" class="form-label">
+                            Formato Personalizzato <span class="text-danger">*</span>
+                        </label>
+                        {{ form.formato_personalizzato }}
+                        {% if form.formato_personalizzato.errors %}
+                            <div class="text-danger">{{ form.formato_personalizzato.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Usa <code>{anno}</code> per l'anno, <code>{mese}</code> per il mese, <code>{numero}</code> per il numero progressivo.
+                            Esempi: <code>{anno}-{numero}</code>, <code>{mese:02d}-{numero}</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configurazione Numerazione -->
+            <div class="form-section">
+                <h5><i class="fas fa-sort-numeric-up me-2"></i>Configurazione Numerazione</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.numero_iniziale.id_for_label }}" class="form-label">
+                                Numero Iniziale <span class="text-danger">*</span>
+                            </label>
+                            {{ form.numero_iniziale }}
+                            {% if form.numero_iniziale.errors %}
+                                <div class="text-danger">{{ form.numero_iniziale.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Il primo numero da utilizzare per la numerazione
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.lunghezza_numero.id_for_label }}" class="form-label">
+                                Lunghezza Numero <span class="text-danger">*</span>
+                            </label>
+                            {{ form.lunghezza_numero }}
+                            {% if form.lunghezza_numero.errors %}
+                                <div class="text-danger">{{ form.lunghezza_numero.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Numero di cifre per il numero progressivo (es: 4 = 0001, 3 = 001)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stato -->
+            <div class="form-section">
+                <h5><i class="fas fa-toggle-on me-2"></i>Stato</h5>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Formato Attivo:</strong> Questo è l'unico formato di numerazione configurato nel sistema e risulta sempre attivo.
+                </div>
+                {{ form.attivo.as_hidden }}
+            </div>
+
+            <!-- Pulsanti -->
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'ddt_app:home' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times me-1"></i>Annulla
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Salva Configurazione
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Gestione toggle formato personalizzato
+    $('#id_formato').change(function() {
+        var formato = $(this).val();
+        
+        if (formato === 'custom') {
+            $('#custom-format').show();
+            $('#format-example').text('Formato personalizzato');
+        } else {
+            $('#custom-format').hide();
+            updateFormatExample(formato);
+        }
+    });
+    
+    // Aggiorna esempio formato
+    function updateFormatExample(formato) {
+        var examples = {
+            'aaaa-num': '2024-0001',
+            'num': '0001',
+            'mmaa-num': '1224-0001',
+            'aa-num': '24-0001'
+        };
+        
+        $('#format-example').text(examples[formato] || 'Formato non riconosciuto');
+    }
+    
+    // Inizializza
+    var currentFormato = $('#id_formato').val();
+    if (currentFormato === 'custom') {
+        $('#custom-format').show();
+    } else {
+        updateFormatExample(currentFormato);
+    }
+});
+</script>
+{% endblock %}

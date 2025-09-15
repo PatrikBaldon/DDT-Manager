@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}DDT {{ ddt.numero }} - Dettaglio{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-gradient">DDT {{ ddt.numero }}</h1>
+            <div class="btn-group">
+                <a href="{% url 'ddt_app:ddt_edit' ddt.id %}" class="btn btn-warning">
+                    Modifica
+                </a>
+                <a href="{% url 'ddt_app:ddt_pdf' ddt.id %}" class="btn btn-success">
+                    Scarica PDF
+                </a>
+                <a href="{% url 'ddt_app:home' %}" class="btn btn-outline-secondary">
+                    Torna alla lista
+                </a>
+            </div>
+        </div>
+
+        <!-- Informazioni Generali -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Informazioni Generali</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Numero DDT:</strong><br>
+                        <span class="text-primary">{{ ddt.numero }}</span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Data Documento:</strong><br>
+                        {{ ddt.data_documento|date:"d/m/Y" }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Causale di Trasporto:</strong><br>
+                        <span class="badge">{{ ddt.causale_trasporto }}</span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Data Ritiro:</strong><br>
+                        {{ ddt.data_ritiro|date:"d/m/Y" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mittente e Destinatario -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Mittente</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>{{ ddt.mittente.nome }}</h6>
+                        <p class="mb-1">{{ ddt.mittente.indirizzo }}</p>
+                        <p class="mb-1">{{ ddt.mittente.cap }} {{ ddt.mittente.citta }} ({{ ddt.mittente.provincia }})</p>
+                        <p class="mb-1"><strong>P.IVA:</strong> {{ ddt.mittente.piva }}</p>
+                        <p class="mb-1"><strong>CF:</strong> {{ ddt.mittente.cf }}</p>
+                        <p class="mb-1"><strong>Tel:</strong> {{ ddt.mittente.telefono }}</p>
+                        <p class="mb-0"><strong>Email:</strong> {{ ddt.mittente.email }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Destinatario</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>{{ ddt.destinatario.nome }}</h6>
+                        <p class="mb-1">{{ ddt.destinatario.indirizzo }}</p>
+                        <p class="mb-1">{{ ddt.destinatario.cap }} {{ ddt.destinatario.citta }} ({{ ddt.destinatario.provincia }})</p>
+                        <p class="mb-1"><strong>P.IVA:</strong> {{ ddt.destinatario.piva }}</p>
+                        <p class="mb-1"><strong>CF:</strong> {{ ddt.destinatario.cf }}</p>
+                        <p class="mb-1"><strong>Tel:</strong> {{ ddt.destinatario.telefono }}</p>
+                        <p class="mb-0"><strong>Email:</strong> {{ ddt.destinatario.email }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Destinazione e Trasporto -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Destinazione</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>{{ ddt.destinazione.nome }}</h6>
+                        {% if ddt.destinazione.codice_stalla %}
+                            <p class="mb-1"><strong>Codice Stalla:</strong> {{ ddt.destinazione.codice_stalla }}</p>
+                        {% endif %}
+                        <p class="mb-1">{{ ddt.destinazione.indirizzo }}</p>
+                        {% if ddt.destinazione.note %}
+                            <p class="mb-0"><em>{{ ddt.destinazione.note }}</em></p>
+                        {% endif %}
+                        <hr>
+                        <p class="mb-0"><strong>Luogo di Destinazione:</strong><br>{{ ddt.luogo_destinazione|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Trasporto</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-2"><strong>Trasporto a mezzo di:</strong> 
+                                    {% if ddt.trasporto_mezzo == 'vettore' %}
+                                        Vettore
+                                    {% elif ddt.trasporto_mezzo == 'mittente' %}
+                                        Mittente
+                                    {% elif ddt.trasporto_mezzo == 'destinatario' %}
+                                        Destinatario
+                                    {% else %}
+                                        {{ ddt.trasporto_mezzo }}
+                                    {% endif %}
+                                </p>
+                                {% if ddt.trasporto_mezzo == 'vettore' and ddt.vettore %}
+                                    <p class="mb-2"><strong>Vettore:</strong> {{ ddt.vettore.nome }}</p>
+                                    <p class="mb-1"><strong>Autista:</strong> {{ ddt.vettore.autista }}</p>
+                                {% elif ddt.trasporto_mezzo == 'mittente' and ddt.sede_mittente %}
+                                    <p class="mb-2"><strong>Sede:</strong> {{ ddt.sede_mittente.nome }}</p>
+                                    <p class="mb-1"><strong>Indirizzo:</strong> {{ ddt.sede_mittente.indirizzo }}</p>
+                                {% elif ddt.trasporto_mezzo == 'destinatario' and ddt.destinazione %}
+                                    <p class="mb-2"><strong>Destinazione:</strong> {{ ddt.destinazione.nome }}</p>
+                                    <p class="mb-1"><strong>Indirizzo:</strong> {{ ddt.destinazione.indirizzo }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+            </div>
+        </div>
+
+        <!-- Articoli -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    Articoli
+                    {% if ddt.usa_note_centrali %}
+                        <span class="badge ms-2">
+                            Note Centrali
+                        </span>
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if ddt.usa_note_centrali %}
+                    <!-- Mostra note centrali -->
+                    <div class="p-4">
+                        <div class="alert alert-info">
+                            <strong>Note Centrali:</strong> Queste note verranno mostrate al centro delle righe della tabella nel PDF.
+                        </div>
+                        <div class="bg-light p-3 rounded">
+                            <pre class="mb-0">{{ ddt.note_centrali }}</pre>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Mostra tabella articoli -->
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Articolo</th>
+                                    <th>Categoria</th>
+                                    <th>U.M.</th>
+                                    <th>Quantità</th>
+                                    <th>Prezzo Unit.</th>
+                                    <th>Totale</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for riga in ddt.righe.all %}
+                                <tr>
+                                    <td>{{ riga.ordine }}</td>
+                                    <td>
+                                        <strong>{{ riga.articolo.nome }}</strong>
+                                        {% if riga.descrizione %}
+                                            <br><small class="text-muted">{{ riga.descrizione }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ riga.articolo.categoria }}</span>
+                                    </td>
+                                    <td>{{ riga.articolo.um }}</td>
+                                    <td>{{ riga.quantita }}</td>
+                                    <td>€ {{ riga.articolo.prezzo_unitario|floatformat:2 }}</td>
+                                    <td><strong>€ {{ riga.valore_totale|floatformat:2 }}</strong></td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        Nessun articolo presente
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            {% if ddt.righe.all %}
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="4"><strong>Totale</strong></td>
+                                    <td><strong>{{ ddt.totale_quantita }}</strong></td>
+                                    <td></td>
+                                    <td><strong>€ {{ ddt.totale_valore|floatformat:2 }}</strong></td>
+                                </tr>
+                            </tfoot>
+                            {% endif %}
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Annotazioni -->
+        {% if ddt.annotazioni %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Annotazioni</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">{{ ddt.annotazioni|linebreaks }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Metadati -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Informazioni Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Creato il:</strong> {{ ddt.created_at|date:"d/m/Y H:i" }}</p>
+                        <p class="mb-0"><strong>Ultima modifica:</strong> {{ ddt.updated_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>ID DDT:</strong> {{ ddt.id }}</p>
+                        <p class="mb-0"><strong>Righe:</strong> {{ ddt.righe.count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

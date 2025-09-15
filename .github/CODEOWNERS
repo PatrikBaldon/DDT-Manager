@@ -1,0 +1,15 @@
+# Global code owners
+* @PatrikBaldon
+
+# Django app
+/ddt_app/ @PatrikBaldon
+/ddt_project/ @PatrikBaldon
+/templates/ @PatrikBaldon
+/static/ @PatrikBaldon
+
+# Installer
+/installer/ @PatrikBaldon
+
+# Documentation
+README.md @PatrikBaldon
+LICENSE @PatrikBaldon
