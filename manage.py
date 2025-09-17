@@ -6,7 +6,12 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ddt_project.settings')
+    # Rileva automaticamente se siamo su Windows e usa la configurazione appropriata
+    import platform
+    if platform.system() == 'Windows':
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.windows')
+    else:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

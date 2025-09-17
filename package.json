@@ -1,0 +1,74 @@
+{
+  "name": "ddt-electron-app",
+  "version": "1.0.0",
+  "description": "Applicazione Electron per la gestione DDT",
+  "main": "electron/main.js",
+  "scripts": {
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm run start-django\" \"wait-on http://localhost:8000 && electron .\"",
+    "start-django": "cd .. && python manage.py runserver",
+    "build": "electron-builder",
+    "build-win": "electron-builder --win",
+    "build-mac": "electron-builder --mac",
+    "build-linux": "electron-builder --linux",
+    "build-full": "node electron/build.js",
+    "build-quick": "node electron/build.js --skip-tests",
+    "test-config": "node electron/test.js",
+    "dist": "npm run build",
+    "pack": "electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "keywords": [
+    "electron",
+    "ddt",
+    "agricoltura",
+    "gestione"
+  ],
+  "author": "Azienda Agricola BB&F",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.6.4",
+    "concurrently": "^8.2.2",
+    "wait-on": "^7.2.0"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "electron-updater": "^6.1.7"
+  },
+  "build": {
+    "appId": "com.aziendaagricola.ddt",
+    "productName": "DDT Manager",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "static/**/*",
+      "templates/**/*",
+      "ddt_app/**/*",
+      "ddt_project/**/*",
+      "manage.py",
+      "requirements.txt",
+      "db.sqlite3"
+    ],
+    "extraResources": [
+      {
+        "from": "static",
+        "to": "static"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "static/images/icons/icon-512x512.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "static/images/icons/icon-512x512.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "static/images/icons/icon-512x512.png"
+    }
+  }
+}

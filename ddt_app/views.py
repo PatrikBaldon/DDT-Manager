@@ -10,8 +10,7 @@ import json
 import os
 from .models import DDT, DDTRiga, Mittente, SedeMittente, Destinatario, Destinazione, Vettore, TargaVettore, Articolo, FormatoNumerazioneDDT, CausaleTrasporto
 from .forms import DDTForm, DDTRigaFormSet, DestinazioneForm, FormatoNumerazioneDDTForm, MittenteForm, DestinatarioForm, VettoreForm, CausaleTrasportoForm
-from .pdf_generator import generate_ddt_pdf
-from .pdf_generator_advanced import create_ddt_pdf
+from .pdf_generator_advanced import create_ddt_pdf as generate_ddt_pdf
 from .utils import genera_numero_ddt, get_prossimo_numero_ddt
 
 
@@ -350,6 +349,39 @@ def get_sedi_mittente(request, mittente_id):
         return JsonResponse(data, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+
+
+@require_http_methods(["GET"])
+def health_check(request):
+    """Health check endpoint per verificare lo stato dell'applicazione"""
+    try:
+        from django.db import connection
+        from django.core.cache import cache
+        
+        # Verifica database
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+        
+        # Verifica cache
+        cache.set('health_check', 'ok', 10)
+        cache_status = cache.get('health_check') == 'ok'
+        
+        return JsonResponse({
+            'status': 'healthy',
+            'database': 'connected',
+            'cache': 'working' if cache_status else 'error',
+            'timestamp': timezone.now().isoformat(),
+            'version': '1.0.0'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'unhealthy',
+            'error': str(e),
+            'timestamp': timezone.now().isoformat()
+        }, status=500)
 
 
 def generate_next_ddt_number(request):

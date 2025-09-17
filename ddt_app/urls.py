@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/sedi-mittente/<int:mittente_id>/', views.get_sedi_mittente, name='get_sedi_mittente'),
     path('api/articoli/', views.get_articoli, name='get_articoli'),
     path('api/next-ddt-number/', views.generate_next_ddt_number, name='next_ddt_number'),
+    path('api/health/', views.health_check, name='health_check'),
     
     # Destinazioni
     path('destinazioni/<int:destinatario_id>/', views.destinazione_list, name='destinazione_list'),

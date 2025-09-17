@@ -1,8 +1,8 @@
-# 👥 Community DDT Application
+# 👥 Community DDT Electron App
 
 ## 🎯 Benvenuti nella Community!
 
-DDT Application è un progetto open source che mira a semplificare la gestione dei Documenti di Trasporto per aziende agricole. La community è il cuore del progetto!
+DDT Electron App è un progetto open source che mira a semplificare la gestione dei Documenti di Trasporto per aziende agricole. La community è il cuore del progetto!
 
 ## 🤝 Come Contribuire
 

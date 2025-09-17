@@ -17,10 +17,19 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install dependencies
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    
+    - name: Install Node.js dependencies
+      run: |
+        npm install
     
     - name: Check for updates
       run: |
@@ -28,7 +37,7 @@ jobs:
         import requests
         import json
         
-        # Controlla aggiornamenti dipendenze
+        # Controlla aggiornamenti dipendenze Python
         response = requests.get('https://pypi.org/pypi/django/json')
         django_latest = response.json()['info']['version']
         
@@ -44,6 +53,23 @@ jobs:
         
         print(f'Python latest: {python_latest}')
         "
+        
+        # Controlla aggiornamenti Node.js
+        node -e "
+        const https = require('https');
+        
+        https.get('https://api.github.com/repos/nodejs/node/releases/latest', (res) => {
+          let data = '';
+          res.on('data', (chunk) => data += chunk);
+          res.on('end', () => {
+            const release = JSON.parse(data);
+            console.log('Node.js latest:', release.tag_name);
+          });
+        });
+        "
+        
+        # Controlla aggiornamenti Electron
+        npm outdated electron
     
     - name: Create issue if updates available
       if: failure()

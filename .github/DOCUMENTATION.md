@@ -1,8 +1,8 @@
-# 📚 Documentazione DDT Application
+# 📚 Documentazione DDT Electron App
 
 ## 🎯 Panoramica
 
-DDT Application è un sistema completo per la gestione dei Documenti di Trasporto (DDT) progettato specificamente per aziende agricole italiane.
+DDT Electron App è un sistema completo per la gestione dei Documenti di Trasporto (DDT) progettato specificamente per aziende agricole italiane.
 
 ## 🏗️ Architettura
 
@@ -12,21 +12,28 @@ DDT Application è un sistema completo per la gestione dei Documenti di Trasport
 - **API**: REST API per aggiornamenti
 - **PDF**: ReportLab per generazione documenti
 
-### Frontend
+### Frontend (Electron)
+- **Framework**: Electron 28.0+
 - **Template**: Django Templates
 - **CSS**: Bootstrap 5 + Custom CSS
 - **JavaScript**: Vanilla JS + jQuery
-- **UI**: Responsive design
+- **UI**: Desktop nativo
 
-### Installer
-- **Windows**: NSIS, Inno Setup, WiX
-- **Scripts**: Batch e PowerShell
-- **Python**: Portable Python incluso
+### Build e Distribuzione
+- **Multi-piattaforma**: Windows, macOS, Linux
+- **Build**: Electron Builder
+- **Auto-aggiornamenti**: Electron Updater
+- **Installer**: NSIS (Windows), DMG (macOS), AppImage (Linux)
 
 ## 📁 Struttura del Codice
 
 ```
-DDT-Application/
+DDT-Electron/
+├── electron/                   # Configurazioni Electron
+│   ├── main.js                 # Processo principale
+│   ├── preload.js              # Script di preload
+│   ├── config.js               # Configurazione multi-ambiente
+│   └── build.js                # Script di build
 ├── ddt_app/                    # App Django principale
 │   ├── models.py              # Modelli dati
 │   ├── views.py               # Viste web

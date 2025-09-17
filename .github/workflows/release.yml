@@ -1,4 +1,4 @@
-name: Create Release
+name: Create Electron Release
 
 on:
   push:
@@ -9,6 +9,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    
     steps:
     - uses: actions/checkout@v3
     
@@ -17,10 +21,19 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install dependencies
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    
+    - name: Install Node.js dependencies
+      run: |
+        npm install
     
     - name: Run migrations
       run: |
@@ -30,34 +43,59 @@ jobs:
       run: |
         python manage.py collectstatic --noinput
     
-    - name: Create installer package
+    - name: Build Electron app
       run: |
-        # Crea il pacchetto per l'installer
-        mkdir -p release_package
-        cp -r installer/* release_package/
-        cp -r ddt_app release_package/app/
-        cp -r ddt_project release_package/app/
-        cp -r templates release_package/app/
-        cp -r static release_package/app/
-        cp manage.py release_package/app/
-        cp requirements.txt release_package/app/
-        cp README.md release_package/
-        cp LICENSE release_package/
-        
-        # Crea il file di versione
-        echo "${{ github.ref_name }}" > release_package/version.txt
-        
-        # Crea l'archivio
-        cd release_package
-        zip -r ../DDT-Application-${{ github.ref_name }}.zip .
-        cd ..
+        npm run build
     
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
+    - name: Upload Windows artifacts
+      if: matrix.os == 'windows-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: DDT-Electron-Windows-${{ github.ref_name }}
+        path: dist/
+    
+    - name: Upload macOS artifacts
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: DDT-Electron-macOS-${{ github.ref_name }}
+        path: dist/
+    
+    - name: Upload Linux artifacts
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: DDT-Electron-Linux-${{ github.ref_name }}
+        path: dist/
+    
+    - name: Create Release
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ github.event.upload_url }}
-        asset_path: ./DDT-Application-${{ github.ref_name }}.zip
-        asset_name: DDT-Application-${{ github.ref_name }}.zip
-        asset_content_type: application/zip
+        tag_name: ${{ github.ref_name }}
+        release_name: DDT Electron App ${{ github.ref_name }}
+        body: |
+          ## 🚀 DDT Electron App ${{ github.ref_name }}
+          
+          ### ✨ Nuove Funzionalità
+          - Applicazione desktop nativa
+          - Multi-piattaforma (Windows, macOS, Linux)
+          - Auto-aggiornamenti
+          - Interfaccia ottimizzata per desktop
+          
+          ### 📦 Download
+          - **Windows**: DDT-Electron-Windows-${{ github.ref_name }}.exe
+          - **macOS**: DDT-Electron-macOS-${{ github.ref_name }}.dmg
+          - **Linux**: DDT-Electron-Linux-${{ github.ref_name }}.AppImage
+          
+          ### 🔄 Installazione
+          1. Scarica il file per il tuo sistema operativo
+          2. Esegui l'installer
+          3. L'app si aggiornerà automaticamente
+          
+          **Data rilascio**: ${{ github.event.head_commit.timestamp }}
+          **Commit**: ${{ github.sha }}
+        draft: false
+        prerelease: false

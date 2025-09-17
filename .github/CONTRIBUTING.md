@@ -1,192 +1,227 @@
-# Contributing to DDT Application
+# 🤝 Contribuire a DDT Electron App
 
-Thank you for your interest in contributing to DDT Application! 🎉
+Grazie per il tuo interesse a contribuire a DDT Electron App! Questo documento ti guiderà attraverso il processo di contribuzione.
 
-## How to Contribute
+## 🚀 Come Iniziare
 
-### 1. Fork the Repository
-- Click the "Fork" button on the GitHub page
-- Clone your fork locally
+### 1. Fork del Repository
+1. Vai su [DDT-Application](https://github.com/PatrikBaldon/DDT-Application)
+2. Clicca su "Fork" in alto a destra
+3. Clona il tuo fork localmente:
+   ```bash
+   git clone https://github.com/TUO_USERNAME/DDT-Application.git
+   cd DDT-Application
+   ```
 
-### 2. Create a Branch
+### 2. Setup Ambiente di Sviluppo
 ```bash
-git checkout -b feature/your-feature-name
-```
+# Prerequisiti
+# - Node.js 16.0+ (https://nodejs.org/)
+# - Python 3.8+ (https://python.org/)
 
-### 3. Make Changes
-- Write clean, readable code
-- Follow the existing code style
-- Add tests for new features
-- Update documentation if needed
-
-### 4. Test Your Changes
-```bash
-# Run tests
-python manage.py test
-
-# Check code style
-flake8 .
-
-# Test the application
-python manage.py runserver
-```
-
-### 5. Commit Changes
-```bash
-git add .
-git commit -m "Add: your feature description"
-```
-
-### 6. Push and Create Pull Request
-```bash
-git push origin feature/your-feature-name
-```
-
-## Code Style Guidelines
-
-### Python
-- Follow PEP 8
-- Use meaningful variable names
-- Add docstrings to functions and classes
-- Keep functions small and focused
-
-### Django
-- Use Django best practices
-- Follow the existing model structure
-- Use proper form validation
-- Add appropriate error handling
-
-### HTML/CSS
-- Use semantic HTML
-- Follow Bootstrap conventions
-- Keep CSS organized and commented
-- Use responsive design principles
-
-## Development Setup
-
-### Prerequisites
-- Python 3.8+
-- Git
-- Virtual environment
-
-### Setup Steps
-```bash
-# Clone repository
-git clone https://github.com/PatrikBaldon/DDT-Application.git
-cd DDT-Application
-
-# Create virtual environment
+# Crea ambiente virtuale Python
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or
-venv\Scripts\activate     # Windows
 
-# Install dependencies
+# Attiva ambiente virtuale
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+
+# Installa dipendenze Python
 pip install -r requirements.txt
 
-# Run migrations
+# Installa dipendenze Node.js
+npm install
+
+# Esegui migrazioni
 python manage.py migrate
 
-# Create superuser
+# Crea superuser
 python manage.py createsuperuser
 
-# Start development server
-python manage.py runserver
+# Avvia applicazione Electron
+npm run electron-dev
 ```
 
-## Testing
+## 🔧 Processo di Contribuzione
 
-### Running Tests
+### 1. Crea un Branch
 ```bash
-# Run all tests
+git checkout -b feature/nome-della-tua-feature
+# oppure
+git checkout -b bugfix/descrizione-bug
+```
+
+### 2. Sviluppa la Funzionalità
+- Scrivi codice pulito e ben documentato
+- Segui le convenzioni di naming del progetto
+- Aggiungi test per le nuove funzionalità
+- Aggiorna la documentazione se necessario
+
+### 3. Test
+```bash
+# Esegui test
 python manage.py test
 
-# Run specific test
-python manage.py test ddt_app.tests.test_models
+# Test PWA
+python pwa/scripts/test_pwa.py
 
-# Run with coverage
-coverage run --source='.' manage.py test
-coverage report
+# Controlla stile codice
+flake8 .
 ```
 
-### Writing Tests
-- Write tests for new features
-- Test edge cases and error conditions
-- Use descriptive test names
-- Keep tests independent and isolated
+### 4. Commit
+```bash
+git add .
+git commit -m "feat: aggiungi descrizione della funzionalità"
+```
 
-## Pull Request Guidelines
+### 5. Push e Pull Request
+```bash
+git push origin feature/nome-della-tua-feature
+```
 
-### Before Submitting
-- [ ] Code follows style guidelines
-- [ ] Tests pass locally
-- [ ] Documentation updated
-- [ ] No merge conflicts
-- [ ] Descriptive commit messages
+Poi vai su GitHub e crea una Pull Request.
 
-### PR Description
-- Clear description of changes
-- Reference related issues
-- Include screenshots if UI changes
-- List any breaking changes
+## 📋 Convenzioni
 
-## Issue Guidelines
+### Commit Messages
+Usa il formato [Conventional Commits](https://www.conventionalcommits.org/):
+- `feat:` per nuove funzionalità
+- `fix:` per bug fixes
+- `docs:` per documentazione
+- `style:` per formattazione
+- `refactor:` per refactoring
+- `test:` per test
+- `chore:` per task di manutenzione
 
-### Bug Reports
-- Use the bug report template
-- Include steps to reproduce
-- Provide system information
-- Add screenshots if applicable
+### Codice
+- Usa Python 3.11+
+- Segui PEP 8
+- Aggiungi docstring alle funzioni
+- Usa type hints quando possibile
 
-### Feature Requests
-- Use the feature request template
-- Describe the problem clearly
-- Explain the proposed solution
-- Consider alternatives
+### PWA
+- Testa sempre le funzionalità offline
+- Verifica la compatibilità con Chrome/Edge
+- Controlla che il Service Worker funzioni correttamente
 
-## Release Process
+## 🐛 Segnalazione Bug
 
-### Version Numbering
-- **Major** (1.0.0): Breaking changes
-- **Minor** (1.1.0): New features
-- **Patch** (1.0.1): Bug fixes
+### Prima di Segnalare
+1. Controlla se il bug è già stato segnalato
+2. Verifica di usare l'ultima versione
+3. Prova a riprodurre il bug
 
-### Release Checklist
-- [ ] All tests pass
-- [ ] Documentation updated
-- [ ] Version number updated
-- [ ] Changelog updated
-- [ ] Release notes prepared
+### Come Segnalare
+1. Vai su [Issues](https://github.com/PatrikBaldon/DDT-Application/issues)
+2. Clicca "New Issue"
+3. Seleziona "Bug Report"
+4. Compila il template
 
-## Community Guidelines
+## 💡 Richieste di Funzionalità
 
-### Be Respectful
-- Use welcoming and inclusive language
-- Be respectful of differing viewpoints
-- Accept constructive criticism gracefully
+### Prima di Richiedere
+1. Controlla se la funzionalità è già stata richiesta
+2. Verifica che sia in linea con gli obiettivi del progetto
+3. Pensa a come implementarla
 
-### Be Collaborative
-- Help others when possible
-- Share knowledge and experience
-- Ask questions when needed
+### Come Richiedere
+1. Vai su [Issues](https://github.com/PatrikBaldon/DDT-Application/issues)
+2. Clicca "New Issue"
+3. Seleziona "Feature Request"
+4. Compila il template
 
-### Be Professional
-- Keep discussions focused
-- Use appropriate language
-- Follow the code of conduct
+## 🧪 Test
 
-## Getting Help
+### Test Unitari
+```bash
+python manage.py test
+```
 
-- **Documentation**: Check the README and code comments
-- **Issues**: Search existing issues before creating new ones
-- **Discussions**: Use GitHub Discussions for questions
-- **Email**: Contact us at support@ddt-app.com
+### Test PWA
+```bash
+python pwa/scripts/test_pwa.py
+```
 
-## Recognition
+### Test Manuali
+1. Testa l'installazione su Windows
+2. Verifica funzionalità offline
+3. Controlla sincronizzazione dati
+4. Testa aggiornamenti automatici
 
-Contributors will be recognized in:
-- README.md contributors section
+## 📚 Documentazione
+
+### Aggiornare Documentazione
+- README.md per informazioni generali
+- PWA_README.md per funzionalità PWA
+- installer/README_Installazione.md per installazione Windows
+- Aggiungi commenti nel codice
+
+### Traduzioni
+- Mantieni la documentazione in italiano
+- Aggiungi traduzioni in inglese se necessario
+
+## 🔄 Processo di Review
+
+### Per i Maintainer
+1. Controlla che il codice segua le convenzioni
+2. Verifica che i test passino
+3. Testa manualmente le funzionalità
+4. Controlla la documentazione
+5. Approva o richiedi modifiche
+
+### Per i Contributor
+1. Rispondi prontamente ai feedback
+2. Fai le modifiche richieste
+3. Aggiorna la PR se necessario
+4. Sii paziente con il processo di review
+
+## 🎯 Aree di Contribuzione
+
+### 🐛 Bug Fixes
+- Correzioni di bug esistenti
+- Miglioramenti di performance
+- Fix di compatibilità
+
+### ✨ Nuove Funzionalità
+- Miglioramenti UI/UX
+- Nuove funzionalità PWA
+- Integrazioni esterne
+
+### 📚 Documentazione
+- Miglioramenti alla documentazione
+- Guide di installazione
+- Esempi di utilizzo
+
+### 🧪 Test
+- Aggiunta di test unitari
+- Test di integrazione
+- Test PWA
+
+## 🏆 Riconoscimenti
+
+I contributor saranno riconosciuti in:
+- README.md
+- CHANGELOG.md
 - Release notes
-- Project documentation
 
-Thank you for contributing to DDT Application! 🌱
+## 📞 Supporto
+
+### Domande
+- GitHub Discussions per domande generali
+- Issues per bug e feature requests
+- Email: supporto@ddt-app.com
+
+### Chat
+- Discord: [Link Discord]
+- Telegram: [Link Telegram]
+
+## 📄 Licenza
+
+Contribuendo a questo progetto, accetti che il tuo codice sarà distribuito sotto la licenza MIT.
+
+---
+
+**Grazie per il tuo contributo a DDT PWA!** 🚀

@@ -1,26 +1,32 @@
-# 🌱 DDT Application - Sistema di Gestione Documenti di Trasporto
+# 🌱 DDT PWA - Sistema di Gestione Documenti di Trasporto
 
-Un'applicazione Django completa per la gestione dei Documenti di Trasporto (DDT) per aziende agricole.
+Un'applicazione Django completa trasformata in **Progressive Web App (PWA)** per la gestione dei Documenti di Trasporto (DDT) per aziende agricole.
 
 ## ✨ Caratteristiche Principali
 
-- **📄 Gestione DDT**: Creazione, modifica e stampa di documenti di trasporto
-- **👥 Gestione Entità**: Mittenti, destinatari, vettori e destinazioni
-- **📊 Reportistica**: Generazione PDF professionali
-- **🔄 Sistema di Aggiornamenti**: Aggiornamenti automatici via GitHub
-- **💻 Installazione Offline**: Funziona senza connessione internet
-- **🪟 Windows Native**: Installazione semplice su Windows
+### 📱 PWA Features
+- **🚀 Installabile**: Come app nativa su Windows, macOS, Linux
+- **📴 Funzionalità Offline**: Lavora senza connessione internet
+- **🔄 Sincronizzazione Automatica**: Dati sincronizzati quando torna online
+- **🔔 Notifiche Push**: Aggiornamenti e notifiche in tempo reale
+- **⚡ Performance Ottimizzate**: Caricamento rapido e cache intelligente
+
+### 📄 Gestione DDT
+- **Creazione, modifica e stampa** di documenti di trasporto
+- **Gestione Entità**: Mittenti, destinatari, vettori e destinazioni
+- **Reportistica**: Generazione PDF professionali offline
+- **Sistema di Aggiornamenti**: Aggiornamenti automatici via GitHub
+- **Installazione Offline**: Funziona senza connessione internet
+- **Windows Native**: Installazione semplice su Windows
 
 ## 🚀 Installazione Rapida
 
 ### Per Windows (Consigliato)
 
-1. **Vai su**: [GitHub Releases](https://github.com/PatrikBaldon/DDT-Application/releases)
-2. **Scarica**: `DDT-Application-v1.0.1-Complete.zip`
-3. **Estrai** i file in una cartella
-4. **Esegui** `DDT-Application-v1.0.1-Installer.bat` **come amministratore**
-5. **Segui** la procedura guidata
-6. **Avvia** l'applicazione dal desktop o Start Menu
+1. **Scarica** l'installer: `DDT_Complete_Setup.exe`
+2. **Esegui** l'installer come amministratore
+3. **Segui** la procedura guidata
+4. **Avvia** l'applicazione dal desktop
 
 ### Installazione Manuale
 
@@ -45,17 +51,29 @@ python manage.py runserver
 ## 📁 Struttura del Progetto
 
 ```
-DDT-Application/
-├── installer/                 # File di installazione Windows
-│   ├── scripts/              # Script di gestione
-│   │   ├── update_ddt.bat    # Aggiornamento applicazione
-│   │   ├── check_version.bat # Controllo versione
-│   │   └── rollback_ddt.bat  # Ripristino versione precedente
-│   └── app/                  # Applicazione Django
+DDT-PWA/
+├── pwa/                      # Configurazioni PWA
+│   ├── config/               # Configurazioni PWA
+│   │   ├── app_config.py     # Configurazione principale
+│   │   └── pwa_settings.py   # Impostazioni PWA
+│   └── scripts/              # Script PWA
+│       ├── generate_pwa_icons.py  # Generazione icone
+│       ├── test_pwa.py            # Test PWA
+│       └── build_pwa.py           # Build ottimizzata
 ├── ddt_app/                  # App Django principale
 ├── ddt_project/              # Configurazione Django
-├── templates/                # Template HTML
-├── static/                   # File statici (CSS, JS)
+├── templates/                # Template HTML (incluso offline.html)
+├── static/                   # File statici ottimizzati
+│   ├── css/                  # Fogli di stile
+│   ├── js/                   # JavaScript (PWA + app)
+│   │   ├── sw.js             # Service Worker
+│   │   ├── pwa.js            # Gestione PWA
+│   │   ├── offline-storage.js # Storage offline
+│   │   └── main.js           # App principale
+│   ├── images/               # Immagini e icone
+│   │   └── icons/            # Icone PWA
+│   └── manifest.json         # Web App Manifest
+├── .github/                  # Workflow GitHub (aggiornamenti)
 └── requirements.txt          # Dipendenze Python
 ```
 
@@ -63,11 +81,7 @@ DDT-Application/
 
 ### Avvio dell'Applicazione
 
-- **Windows (Installato)**: 
-  - Doppio clic su "DDT Application" dal desktop
-  - Oppure dal menu Start → "DDT Application"
-  - Oppure esegui `start_ddt.bat` dalla directory di installazione
-- **Windows (Portable)**: Esegui `start_ddt.bat` dalla cartella dell'applicazione
+- **Windows**: Doppio clic su "DDT Application" dal desktop
 - **Manuale**: `python manage.py runserver`
 
 ### Gestione DDT
@@ -79,20 +93,15 @@ DDT-Application/
 
 ### Aggiornamenti
 
-**Windows (Installato)**:
 ```bash
-# Dalla directory di installazione (C:\Program Files\DDT Application\scripts)
-check_version.bat    # Controlla aggiornamenti
-update_ddt.bat       # Aggiorna applicazione
-rollback_ddt.bat     # Ripristina versione precedente
-```
+# Controlla aggiornamenti
+check_version.bat
 
-**Windows (Portable)**:
-```bash
-# Dalla cartella dell'applicazione
-scripts\check_version.bat    # Controlla aggiornamenti
-scripts\update_ddt.bat       # Aggiorna applicazione
-scripts\rollback_ddt.bat     # Ripristina versione precedente
+# Aggiorna applicazione
+update_ddt.bat
+
+# Ripristina versione precedente
+rollback_ddt.bat
 ```
 
 ## 🛠️ Sviluppo

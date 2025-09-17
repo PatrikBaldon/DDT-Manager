@@ -1,32 +1,38 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
+name: Bug Report
+about: Crea un report per aiutarci a migliorare DDT Electron App
+title: '[BUG] '
 labels: bug
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## 🐛 Descrizione del Bug
+Una descrizione chiara e concisa del problema.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+## 🔄 Passaggi per Riprodurre
+1. Avvia l'applicazione Electron
+2. Vai a '...'
+3. Clicca su '....'
+4. Vedi l'errore
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## ✅ Comportamento Atteso
+Una descrizione chiara e concisa di cosa ti aspettavi che accadesse.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## 📸 Screenshot
+Se applicabile, aggiungi screenshot per aiutare a spiegare il problema.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. Windows 10, macOS, Linux]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+## 💻 Informazioni Sistema
+- **OS**: [es. Windows 10, Windows 11, macOS 13, Ubuntu 22.04]
+- **Versione DDT Electron App**: [es. 1.0.0]
+- **Tipo installazione**: [es. Installer automatico, Build manuale]
+- **Node.js versione**: [es. 18.17.0]
+- **Python versione**: [es. 3.11.0]
 
-**Additional context**
-Add any other context about the problem here.
+## 📋 Log di Errore
+```
+Incolla qui eventuali messaggi di errore dalla console
+```
+
+## 🔧 Contesto Aggiuntivo
+Aggiungi qualsiasi altro contesto sul problema qui.

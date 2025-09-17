@@ -1,4 +1,4 @@
-# 🚀 Setup Progetto DDT Application
+# 🚀 Setup Progetto DDT Electron Application
 
 ## 📋 Checklist Iniziale
 
@@ -17,10 +17,10 @@
 - [ ] Branch protection attivato
 
 ### ✅ GitHub Actions
-- [ ] Workflow test configurato
-- [ ] Workflow release configurato
+- [ ] Workflow test configurato (Python + Node.js)
+- [ ] Workflow release configurato (Electron build)
 - [ ] Workflow update-checker configurato
-- [ ] Dependabot configurato
+- [ ] Dependabot configurato (Python + Node.js)
 
 ### ✅ File di Configurazione
 - [ ] .gitignore creato
@@ -45,7 +45,22 @@ git config user.name "Patrik Baldon"
 git config user.email "patrik.baldon@email.com"
 ```
 
-### 3. Crea Branch di Sviluppo
+### 3. Setup Dipendenze
+```bash
+# Installa dipendenze Python
+pip install -r requirements.txt
+
+# Installa dipendenze Node.js
+npm install
+
+# Esegui migrazioni
+python manage.py migrate
+
+# Crea superuser
+python manage.py createsuperuser
+```
+
+### 4. Crea Branch di Sviluppo
 ```bash
 git checkout -b develop
 git push -u origin develop

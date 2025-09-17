@@ -1,0 +1,87 @@
+{
+  "appId": "com.aziendaagricola.ddt",
+  "productName": "DDT Manager",
+  "directories": {
+    "output": "dist",
+    "buildResources": "build"
+  },
+  "files": [
+    "electron/**/*",
+    "static/**/*",
+    "templates/**/*",
+    "ddt_app/**/*",
+    "ddt_project/**/*",
+    "manage.py",
+    "requirements.txt",
+    "db.sqlite3",
+    "!**/__pycache__/**/*",
+    "!**/migrations/**/*",
+    "!**/tests/**/*",
+    "!**/logs/**/*"
+  ],
+  "extraResources": [
+    {
+      "from": "static",
+      "to": "static"
+    },
+    {
+      "from": "templates",
+      "to": "templates"
+    }
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "static/images/icons/icon-512x512.png",
+    "publisherName": "Azienda Agricola BB&F",
+    "requestedExecutionLevel": "asInvoker"
+  },
+  "mac": {
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      }
+    ],
+    "icon": "static/images/icons/icon-512x512.png",
+    "category": "public.app-category.business",
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false
+  },
+  "linux": {
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "static/images/icons/icon-512x512.png",
+    "category": "Office"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "DDT Manager",
+    "installerIcon": "static/images/icons/icon-512x512.ico",
+    "uninstallerIcon": "static/images/icons/icon-512x512.ico",
+    "uninstallDisplayName": "DDT Manager Uninstaller",
+    "license": "LICENSE",
+    "runAfterFinish": true,
+    "allowElevation": true,
+    "include": "installer/nsis/installer.nsh"
+  },
+  "dmg": {
+    "title": "DDT Manager",
+    "background": "static/images/logo1.png",
+    "window": {
+      "width": 540,
+      "height": 380
+    }
+  }
+}

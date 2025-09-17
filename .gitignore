@@ -128,52 +128,66 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Django specific
-staticfiles/
-media/
-
-# Database
+# DDT specific
+logs/
+backup/
 *.sqlite3
 *.db
+media/
+staticfiles/
 
-# Logs
-logs/
-*.log
-
-# Temporary files
-*.tmp
-*.temp
-.DS_Store
+# Windows specific
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
-# IDE
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux specific
+*~
+
+# IDE specific
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Windows
-*.exe
-*.msi
-*.bat
-*.cmd
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
 
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Linux
-*~
-
-# Project specific
-installer/app/data/
-installer/app/logs/
-installer/backup/
+# Installer specific
 installer/temp/
-installer/python/
-installer/dependencies/
+installer/downloads/
 
-# Version files
-version.txt
-backup/
+# Electron specific
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+dist/
+build/
+*.tgz
+*.tar.gz
+
+# Electron build outputs
+out/
+app/
+packages/
+*.dmg
+*.exe
+*.deb
+*.rpm
+*.AppImage
+*.snap
+
+# Electron store
+.electron-store/
