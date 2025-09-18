@@ -191,3 +191,8 @@ packages/
 
 # Electron store
 .electron-store/
+
+# Release files (created by GitHub Actions)
+release-files/
+*.zip
+DDT_Manager_*.zip
