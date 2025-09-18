@@ -1,6 +1,7 @@
 {
   "appId": "com.aziendaagricola.ddt",
   "productName": "DDT Manager",
+  "version": "1.0.0",
   "directories": {
     "output": "dist",
     "buildResources": "build"

@@ -1,101 +1,152 @@
-name: Create Electron Release
+name: Release DDT Manager
 
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    
+  build-and-release:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
-        node-version: '18'
-    
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    
+        
     - name: Install Node.js dependencies
-      run: |
-        npm install
-    
-    - name: Run migrations
+      run: npm install
+        
+    - name: Setup Django
       run: |
         python manage.py migrate
-    
-    - name: Collect static files
-      run: |
         python manage.py collectstatic --noinput
-    
+        
     - name: Build Electron app
       run: |
-        npm run build
-    
-    - name: Upload Windows artifacts
-      if: matrix.os == 'windows-latest'
-      uses: actions/upload-artifact@v3
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          npm run build-win
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          npm run build-mac
+        else
+          npm run build-linux
+        fi
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
       with:
-        name: DDT-Electron-Windows-${{ github.ref_name }}
+        name: ddt-manager-${{ matrix.os }}
         path: dist/
+
+  create-release:
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
     
-    - name: Upload macOS artifacts
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v3
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download Windows artifacts
+      uses: actions/download-artifact@v4
       with:
-        name: DDT-Electron-macOS-${{ github.ref_name }}
-        path: dist/
-    
-    - name: Upload Linux artifacts
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v3
+        name: ddt-manager-windows-latest
+        path: dist/windows/
+        
+    - name: Download macOS artifacts
+      uses: actions/download-artifact@v4
       with:
-        name: DDT-Electron-Linux-${{ github.ref_name }}
-        path: dist/
-    
+        name: ddt-manager-macos-latest
+        path: dist/macos/
+        
+    - name: Download Linux artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: ddt-manager-ubuntu-latest
+        path: dist/linux/
+        
     - name: Create Release
-      if: matrix.os == 'ubuntu-latest'
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref_name }}
-        release_name: DDT Electron App ${{ github.ref_name }}
+        files: |
+          dist/windows/*
+          dist/macos/*
+          dist/linux/*
         body: |
-          ## 🚀 DDT Electron App ${{ github.ref_name }}
+          ## DDT Manager v${{ github.ref_name }}
           
-          ### ✨ Nuove Funzionalità
-          - Applicazione desktop nativa
-          - Multi-piattaforma (Windows, macOS, Linux)
-          - Auto-aggiornamenti
-          - Interfaccia ottimizzata per desktop
+          ### 🎉 Prima Release Electron
           
-          ### 📦 Download
-          - **Windows**: DDT-Electron-Windows-${{ github.ref_name }}.exe
-          - **macOS**: DDT-Electron-macOS-${{ github.ref_name }}.dmg
-          - **Linux**: DDT-Electron-Linux-${{ github.ref_name }}.AppImage
+          Questa è la prima release dell'applicazione Electron per la gestione dei Documenti di Trasporto.
           
-          ### 🔄 Installazione
-          1. Scarica il file per il tuo sistema operativo
-          2. Esegui l'installer
-          3. L'app si aggiornerà automaticamente
+          ### 📦 Installazione
           
-          **Data rilascio**: ${{ github.event.head_commit.timestamp }}
-          **Commit**: ${{ github.sha }}
+          **Windows:**
+          - Scarica `DDT_Manager_Setup_1.0.0.exe`
+          - Esegui l'installer come amministratore
+          - Segui le istruzioni per installare Python e Node.js se necessario
+          
+          **macOS:**
+          - Scarica `DDT_Manager-1.0.0.dmg`
+          - Apri il file DMG
+          - Trascina l'applicazione in Applications
+          
+          **Linux:**
+          - Scarica `DDT_Manager-1.0.0.AppImage`
+          - Rendi eseguibile: `chmod +x DDT_Manager-1.0.0.AppImage`
+          - Esegui: `./DDT_Manager-1.0.0.AppImage`
+          
+          ### ✨ Caratteristiche
+          
+          - 🖥️ **Applicazione Desktop**: Interfaccia nativa per Windows, macOS e Linux
+          - 📄 **Gestione DDT Completa**: Creazione, modifica e visualizzazione documenti
+          - 📊 **Generazione PDF**: PDF professionali con layout ottimizzato
+          - 🔄 **Aggiornamenti Automatici**: Controllo e installazione aggiornamenti
+          - 💾 **Backup Automatico**: Sistema di backup integrato per i dati
+          - 📈 **Monitoraggio Performance**: Tracciamento delle performance dell'applicazione
+          - 🔔 **Notifiche Desktop**: Sistema di notifiche per l'utente
+          - ⚙️ **Gestione Impostazioni**: Configurazione persistente dell'applicazione
+          
+          ### 🔧 Prerequisiti
+          
+          - Python 3.8+ (installato automaticamente dall'installer)
+          - Node.js 16+ (installato automaticamente dall'installer)
+          - 500MB di spazio su disco
+          - Connessione internet per aggiornamenti
+          
+          ### 🚀 Sviluppato da
+          
+          **Patrik Baldon** per **Azienda Agricola BB&F**
+          
+          ### 📞 Supporto
+          
+          Per supporto tecnico o segnalazione bug, visita:
+          - [GitHub Issues](https://github.com/PatrikBaldon/DDT-Application/issues)
+          - Email: patrik.baldon@aziendaagricola.com
         draft: false
         prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
