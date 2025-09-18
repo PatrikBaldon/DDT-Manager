@@ -39,7 +39,8 @@
     ],
     "icon": "static/images/icons/icon-512x512.png",
     "publisherName": "Azienda Agricola BB&F",
-    "requestedExecutionLevel": "asInvoker"
+    "requestedExecutionLevel": "asInvoker",
+    "publish": null
   },
   "mac": {
     "target": [
@@ -51,7 +52,8 @@
     "icon": "static/images/icons/icon-512x512.png",
     "category": "public.app-category.business",
     "hardenedRuntime": true,
-    "gatekeeperAssess": false
+    "gatekeeperAssess": false,
+    "publish": null
   },
   "linux": {
     "target": [
@@ -61,7 +63,8 @@
       }
     ],
     "icon": "static/images/icons/icon-512x512.png",
-    "category": "Office"
+    "category": "Office",
+    "publish": null
   },
   "nsis": {
     "oneClick": false,
