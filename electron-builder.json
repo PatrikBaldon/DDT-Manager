@@ -75,7 +75,8 @@
     "license": "LICENSE",
     "runAfterFinish": true,
     "allowElevation": true,
-    "include": "installer/nsis/installer.nsh"
+    "include": "installer/nsis/installer.nsh",
+    "artifactName": "DDT Manager Setup ${version}.${ext}"
   },
   "dmg": {
     "title": "DDT Manager",
