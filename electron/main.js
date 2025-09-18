@@ -3,6 +3,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const Store = require('electron-store');
 const config = require('./config');
+const Updater = require('./updater');
 
 // Inizializza il store per le impostazioni
 const store = new Store();
@@ -12,6 +13,7 @@ let djangoProcess = null;
 
 // Configurazione della finestra principale
 let mainWindow;
+let updater;
 
 function createWindow() {
   // Crea la finestra del browser
@@ -49,6 +51,11 @@ function createWindow() {
   // Mostra la finestra quando è pronta
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
+    
+    // Inizializza l'updater dopo che la finestra è pronta
+    if (config.updater.enabled) {
+      updater = new Updater(mainWindow);
+    }
   });
 }
 
@@ -192,6 +199,21 @@ function createMenu() {
     {
       label: 'Aiuto',
       submenu: [
+        {
+          label: 'Controlla Aggiornamenti',
+          click: () => {
+            if (updater) {
+              updater.checkForUpdates();
+            } else {
+              dialog.showMessageBox(mainWindow, {
+                type: 'info',
+                title: 'Aggiornamenti',
+                message: 'Controllo aggiornamenti non disponibile in modalità sviluppo'
+              });
+            }
+          }
+        },
+        { type: 'separator' },
         {
           label: 'Informazioni',
           click: () => {

@@ -1,38 +1,48 @@
 ---
-name: Bug Report
-about: Crea un report per aiutarci a migliorare DDT Electron App
+name: 🐛 Bug Report
+about: Segnala un bug per aiutare a migliorare DDT-Application
 title: '[BUG] '
-labels: bug
-assignees: ''
-
+labels: ['bug', 'needs-triage']
+assignees: 'PatrikBaldon'
 ---
 
 ## 🐛 Descrizione del Bug
-Una descrizione chiara e concisa del problema.
+Una descrizione chiara e concisa del bug.
 
-## 🔄 Passaggi per Riprodurre
-1. Avvia l'applicazione Electron
-2. Vai a '...'
-3. Clicca su '....'
+## 🔄 Passi per Riprodurre
+Passi per riprodurre il comportamento:
+1. Vai a '...'
+2. Clicca su '...'
+3. Scorri fino a '...'
 4. Vedi l'errore
 
 ## ✅ Comportamento Atteso
 Una descrizione chiara e concisa di cosa ti aspettavi che accadesse.
 
+## 📱 Informazioni Sistema
+- **Sistema Operativo**: [es. Windows 11, macOS 13.0, Ubuntu 22.04]
+- **Versione DDT-Application**: [es. v1.1.0]
+- **Architettura**: [es. x64, arm64]
+- **Python**: [es. 3.11.0]
+- **Node.js**: [es. 18.17.0]
+
 ## 📸 Screenshot
 Se applicabile, aggiungi screenshot per aiutare a spiegare il problema.
 
-## 💻 Informazioni Sistema
-- **OS**: [es. Windows 10, Windows 11, macOS 13, Ubuntu 22.04]
-- **Versione DDT Electron App**: [es. 1.0.0]
-- **Tipo installazione**: [es. Installer automatico, Build manuale]
-- **Node.js versione**: [es. 18.17.0]
-- **Python versione**: [es. 3.11.0]
-
 ## 📋 Log di Errore
 ```
-Incolla qui eventuali messaggi di errore dalla console
+Incolla qui i log di errore se disponibili
 ```
 
-## 🔧 Contesto Aggiuntivo
-Aggiungi qualsiasi altro contesto sul problema qui.
+## 🔧 Installazione
+- [ ] Installazione pulita
+- [ ] Aggiornamento da versione precedente
+- [ ] Reinstallazione
+
+## 🧪 Test Aggiuntivi
+- [ ] Bug riproducibile su altre piattaforme
+- [ ] Bug presente anche in modalità sviluppo
+- [ ] Bug presente anche dopo riavvio applicazione
+
+## 📝 Note Aggiuntive
+Aggiungi qualsiasi altra informazione sul bug qui.

@@ -1,21 +1,52 @@
+# DDT-Application - Dependabot Configuration
+# Configurazione per aggiornamenti automatici delle dipendenze
+
 version: 2
 updates:
+  # Aggiornamenti dipendenze Python
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
     reviewers:
       - "PatrikBaldon"
     assignees:
       - "PatrikBaldon"
-  
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Aggiornamenti dipendenze Node.js
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
     reviewers:
       - "PatrikBaldon"
     assignees:
       - "PatrikBaldon"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # Aggiornamenti GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "PatrikBaldon"
+    assignees:
+      - "PatrikBaldon"
+    commit-message:
+      prefix: "chore"
+      include: "scope"

@@ -1,43 +1,53 @@
 ---
-name: Feature Request
-about: Suggerisci un'idea per DDT Electron App
+name: ✨ Feature Request
+about: Suggerisci una nuova funzionalità per DDT-Application
 title: '[FEATURE] '
-labels: enhancement
-assignees: ''
-
+labels: ['enhancement', 'needs-triage']
+assignees: 'PatrikBaldon'
 ---
 
-## 🚀 Funzionalità Richiesta
+## ✨ Descrizione della Funzionalità
 Una descrizione chiara e concisa della funzionalità che vorresti vedere implementata.
 
-## 💡 Motivazione
-Descrivi il problema che questa funzionalità risolverebbe. Per esempio: "Sono sempre frustrato quando [...]"
+## 🎯 Problema che Risolve
+Descrivi il problema che questa funzionalità risolverebbe. Es. "Sono sempre frustrato quando [...]"
 
-## 📝 Descrizione Dettagliata
-Descrivi in dettaglio come vorresti che funzionasse la funzionalità.
-
-## 🎯 Casi d'Uso
-Descrivi i casi d'uso specifici per questa funzionalità:
-1. Come utente, voglio...
-2. In modo che possa...
-3. Perché...
-
-## 🎨 Mockup/Esempi
-Se hai idee per l'interfaccia utente, descrivi o aggiungi mockup.
+## 💡 Soluzione Proposta
+Descrivi la soluzione che vorresti vedere implementata.
 
 ## 🔄 Alternative Considerate
 Descrivi eventuali soluzioni alternative che hai considerato.
 
-## 📊 Priorità
-- [ ] Alta - Blocca il lavoro
-- [ ] Media - Migliorerebbe l'esperienza
-- [ ] Bassa - Nice to have
-
-## 💻 Piattaforma Target
+## 📱 Piattaforme
+Su quali piattaforme dovrebbe funzionare questa funzionalità?
 - [ ] Windows
 - [ ] macOS
 - [ ] Linux
 - [ ] Tutte le piattaforme
 
-## 📋 Contesto Aggiuntivo
-Aggiungi qualsiasi altro contesto o screenshot sulla richiesta di funzionalità qui.
+## 🎨 UI/UX
+Se la funzionalità coinvolge l'interfaccia utente:
+- [ ] Modifica interfaccia esistente
+- [ ] Nuova pagina/sezione
+- [ ] Nuovo menu/opzione
+- [ ] Miglioramento prestazioni
+
+## 🔧 Implementazione Tecnica
+Se hai idee su come implementare la funzionalità:
+- [ ] Modifica backend Django
+- [ ] Modifica frontend Electron
+- [ ] Nuova dipendenza
+- [ ] Modifica database
+
+## 📊 Priorità
+Quanto è importante questa funzionalità per te?
+- [ ] Bassa - Nice to have
+- [ ] Media - Utile ma non critica
+- [ ] Alta - Molto importante
+- [ ] Critica - Blocca l'uso dell'applicazione
+
+## 📝 Note Aggiuntive
+Aggiungi qualsiasi altra informazione sulla funzionalità qui.
+
+## 🖼️ Mockup/Wireframe
+Se disponibili, aggiungi mockup o wireframe della funzionalità.

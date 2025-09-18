@@ -1,289 +1,196 @@
-; DDT Manager - Installer NSIS
-; Script per creare installer Windows professionale
+; DDT Manager - Installer NSIS per Windows
+; Script di installazione con interfaccia grafica
 
-;--------------------------------
-; Include Modern UI
+!define APP_NAME "DDT Manager"
+!define APP_VERSION "1.1.0"
+!define APP_PUBLISHER "Azienda Agricola BB&F"
+!define APP_WEB_SITE "https://github.com/aziendaagricola/ddt-manager"
+!define APP_EXECUTABLE "DDT Manager.exe"
+!define APP_DESCRIPTION "Sistema di gestione Documenti di Trasporto per aziende agricole"
+
+; Include le librerie necessarie
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 !include "LogicLib.nsh"
 !include "WinVer.nsh"
+!include "x64.nsh"
 
-;--------------------------------
-; General
-
-; Name and file
-Name "DDT Manager"
-OutFile "DDT_Manager_Setup.exe"
+; Configurazione generale
+Name "${APP_NAME}"
+OutFile "DDT_Manager_Setup_${APP_VERSION}.exe"
+InstallDir "$PROGRAMFILES64\${APP_NAME}"
+InstallDirRegKey HKLM "Software\${APP_NAME}" "Install_Dir"
+RequestExecutionLevel admin
 Unicode True
 
-; Default installation folder
-InstallDir "$PROGRAMFILES\DDT Manager"
+; Configurazione interfaccia
+!define MUI_ICON "..\..\static\images\icons\icon-512x512.ico"
+!define MUI_UNICON "..\..\static\images\icons\icon-512x512.ico"
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_BITMAP "..\..\static\images\logo1.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "..\..\static\images\logo1.bmp"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "..\..\static\images\logo1.bmp"
 
-; Get installation folder from registry if available
-InstallDirRegKey HKCU "Software\DDT Manager" "Install_Dir"
-
-; Request application privileges for Windows Vista
-RequestExecutionLevel admin
-
-;--------------------------------
-; Variables
-
-Var StartMenuFolder
-Var PythonInstalled
-Var NodeInstalled
-Var PythonPath
-Var NodePath
-
-;--------------------------------
-; Interface Settings
-
-!define MUI_ABORTWARNING
-!define MUI_ICON "..\..\static\images\icons\icon-512x512.png"
-!define MUI_UNICON "..\..\static\images\icons\icon-512x512.png"
-
-;--------------------------------
-; Pages
-
+; Pagine dell'installer
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "..\..\LICENSE"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
-
-; Start Menu Folder Page Configuration
-!define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
-!define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\DDT Manager"
-!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
-
-!insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
 !insertmacro MUI_PAGE_INSTFILES
-
-; Finish page
-!define MUI_FINISHPAGE_RUN "$INSTDIR\DDT Manager.exe"
-!define MUI_FINISHPAGE_RUN_TEXT "Avvia DDT Manager"
-!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\README.txt"
-!define MUI_FINISHPAGE_SHOWREADME_TEXT "Mostra README"
 !insertmacro MUI_PAGE_FINISH
 
-; Uninstaller pages
+; Pagine di disinstallazione
+!insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
 
-;--------------------------------
-; Languages
-
+; Lingue
 !insertmacro MUI_LANGUAGE "Italian"
 
-;--------------------------------
-; Installer Sections
-
-Section "DDT Manager (Required)" SecMain
+; Sezioni dell'installer
+Section "Applicazione Principale" SecMain
     SectionIn RO
     
     SetOutPath "$INSTDIR"
     
-    ; Copy application files
-    File /r "..\..\dist\win-unpacked\*"
+    ; File dell'applicazione
+    File /r "..\..\electron\*"
+    File /r "..\..\static\*"
+    File /r "..\..\templates\*"
+    File /r "..\..\ddt_app\*"
+    File /r "..\..\ddt_project\*"
+    File "..\..\manage.py"
+    File "..\..\requirements.txt"
+    File "..\..\db.sqlite3"
+    File "..\..\package.json"
     
-    ; Copy additional files
-    File "..\..\LICENSE"
-    File "..\..\README.md"
+    ; Crea directory necessarie
+    CreateDirectory "$INSTDIR\logs"
+    CreateDirectory "$INSTDIR\backup"
+    CreateDirectory "$INSTDIR\static\pdf"
+    CreateDirectory "$INSTDIR\templates\pdf"
     
-    ; Store installation folder
-    WriteRegStr HKCU "Software\DDT Manager" "Install_Dir" "$INSTDIR"
+    ; Crea script di avvio
+    FileOpen $0 "$INSTDIR\start_ddt.bat" w
+    FileWrite $0 "@echo off$\r$\n"
+    FileWrite $0 "echo Avvio DDT Manager...$\r$\n"
+    FileWrite $0 "cd /d $\"$INSTDIR$\"$\r$\n"
+    FileWrite $0 "npm run electron$\r$\n"
+    FileClose $0
     
-    ; Create uninstaller
-    WriteUninstaller "$INSTDIR\Uninstall.exe"
+    ; Crea script di installazione dipendenze
+    FileOpen $0 "$INSTDIR\install_dependencies.bat" w
+    FileWrite $0 "@echo off$\r$\n"
+    FileWrite $0 "echo Installazione dipendenze DDT Manager...$\r$\n"
+    FileWrite $0 "cd /d $\"$INSTDIR$\"$\r$\n"
+    FileWrite $0 "pip install -r requirements.txt$\r$\n"
+    FileWrite $0 "npm install$\r$\n"
+    FileWrite $0 "python manage.py migrate$\r$\n"
+    FileWrite $0 "python manage.py collectstatic --noinput$\r$\n"
+    FileWrite $0 "echo Installazione completata!$\r$\n"
+    FileWrite $0 "pause$\r$\n"
+    FileClose $0
     
-    ; Add to Add/Remove Programs
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DDT Manager" "DisplayName" "DDT Manager"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DDT Manager" "UninstallString" "$INSTDIR\Uninstall.exe"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DDT Manager" "InstallLocation" "$INSTDIR"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DDT Manager" "DisplayIcon" "$INSTDIR\DDT Manager.exe"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DDT Manager" "Publisher" "Patrik Baldon"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DDT Manager" "DisplayVersion" "1.0.0"
-    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DDT Manager" "NoModify" 1
-    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DDT Manager" "NoRepair" 1
+    ; Registra l'installazione
+    WriteRegStr HKLM "Software\${APP_NAME}" "Install_Dir" "$INSTDIR"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "DisplayName" "${APP_NAME}"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "UninstallString" "$INSTDIR\uninstall.exe"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "DisplayIcon" "$INSTDIR\${APP_EXECUTABLE}"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "Publisher" "${APP_PUBLISHER}"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "DisplayVersion" "${APP_VERSION}"
+    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "NoModify" 1
+    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}" "NoRepair" 1
     
-    ; Create Start Menu shortcuts
-    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-        CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-        CreateShortCut "$SMPROGRAMS\$StartMenuFolder\DDT Manager.lnk" "$INSTDIR\DDT Manager.exe"
-        CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
-        CreateShortCut "$SMPROGRAMS\$StartMenuFolder\README.lnk" "$INSTDIR\README.txt"
-    !insertmacro MUI_STARTMENU_WRITE_END
-    
-    ; Create Desktop shortcut
-    CreateShortCut "$DESKTOP\DDT Manager.lnk" "$INSTDIR\DDT Manager.exe"
-    
-    ; Create Quick Launch shortcut
-    CreateShortCut "$QUICKLAUNCH\DDT Manager.lnk" "$INSTDIR\DDT Manager.exe"
+    ; Crea disinstallatore
+    WriteUninstaller "$INSTDIR\uninstall.exe"
 SectionEnd
 
-Section "Python Runtime" SecPython
-    ; Check if Python is already installed
-    Call CheckPython
+Section "Shortcut Desktop" SecDesktop
+    CreateShortCut "$DESKTOP\${APP_NAME}.lnk" "$INSTDIR\start_ddt.bat" "" "$INSTDIR\static\images\icons\icon-512x512.ico"
+SectionEnd
+
+Section "Shortcut Menu Start" SecStartMenu
+    CreateDirectory "$SMPROGRAMS\${APP_NAME}"
+    CreateShortCut "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk" "$INSTDIR\start_ddt.bat" "" "$INSTDIR\static\images\icons\icon-512x512.ico"
+    CreateShortCut "$SMPROGRAMS\${APP_NAME}\Disinstalla.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe"
+SectionEnd
+
+Section "Python e Node.js" SecDependencies
+    ; Verifica Python
+    nsExec::ExecToLog 'python --version'
+    Pop $0
+    ${If} $0 != 0
+        MessageBox MB_YESNO "Python non trovato. Vuoi scaricare Python automaticamente?" IDYES download_python IDNO skip_python
+        download_python:
+            ExecShell "open" "https://www.python.org/downloads/"
+            MessageBox MB_OK "Scarica e installa Python, poi riavvia l'installer."
+        skip_python:
+    ${EndIf}
     
-    ${If} $PythonInstalled == "false"
-        DetailPrint "Python non trovato. Installazione Python..."
-        ; Download and install Python
-        Call InstallPython
-    ${Else}
-        DetailPrint "Python già installato: $PythonPath"
+    ; Verifica Node.js
+    nsExec::ExecToLog 'node --version'
+    Pop $0
+    ${If} $0 != 0
+        MessageBox MB_YESNO "Node.js non trovato. Vuoi scaricare Node.js automaticamente?" IDYES download_node IDNO skip_node
+        download_node:
+            ExecShell "open" "https://nodejs.org/"
+            MessageBox MB_OK "Scarica e installa Node.js, poi riavvia l'installer."
+        skip_node:
     ${EndIf}
 SectionEnd
 
-Section "Node.js Runtime" SecNode
-    ; Check if Node.js is already installed
-    Call CheckNode
-    
-    ${If} $NodeInstalled == "false"
-        DetailPrint "Node.js non trovato. Installazione Node.js..."
-        ; Download and install Node.js
-        Call InstallNode
-    ${Else}
-        DetailPrint "Node.js già installato: $NodePath"
-    ${EndIf}
-SectionEnd
+; Descrizioni delle sezioni
+LangString DESC_SecMain ${LANG_ITALIAN} "File principali dell'applicazione DDT Manager"
+LangString DESC_SecDesktop ${LANG_ITALIAN} "Crea un collegamento sul desktop"
+LangString DESC_SecStartMenu ${LANG_ITALIAN} "Crea collegamenti nel menu Start"
+LangString DESC_SecDependencies ${LANG_ITALIAN} "Verifica e installa Python e Node.js"
 
-;--------------------------------
-; Descriptions
-
-; Language strings
-LangString DESC_SecMain ${LANG_ITALIAN} "Componenti principali dell'applicazione DDT Manager."
-LangString DESC_SecPython ${LANG_ITALIAN} "Runtime Python necessario per il funzionamento dell'applicazione."
-LangString DESC_SecNode ${LANG_ITALIAN} "Runtime Node.js necessario per l'applicazione Electron."
-
-; Assign language strings to sections
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${SecMain} $(DESC_SecMain)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecPython} $(DESC_SecPython)
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecNode} $(DESC_SecNode)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} $(DESC_SecDesktop)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecStartMenu} $(DESC_SecStartMenu)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecDependencies} $(DESC_SecDependencies)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
-;--------------------------------
-; Functions
-
-Function CheckPython
-    ; Check if Python is installed
-    ReadRegStr $PythonPath HKLM "SOFTWARE\Python\PythonCore\3.11\InstallPath" ""
-    ${If} $PythonPath == ""
-        ReadRegStr $PythonPath HKLM "SOFTWARE\Python\PythonCore\3.10\InstallPath" ""
-    ${EndIf}
-    ${If} $PythonPath == ""
-        ReadRegStr $PythonPath HKLM "SOFTWARE\Python\PythonCore\3.9\InstallPath" ""
-    ${EndIf}
-    ${If} $PythonPath == ""
-        ReadRegStr $PythonPath HKLM "SOFTWARE\Python\PythonCore\3.8\InstallPath" ""
-    ${EndIf}
-    
-    ${If} $PythonPath == ""
-        StrCpy $PythonInstalled "false"
-    ${Else}
-        StrCpy $PythonInstalled "true"
-    ${EndIf}
-FunctionEnd
-
-Function CheckNode
-    ; Check if Node.js is installed
-    ReadRegStr $NodePath HKLM "SOFTWARE\Node.js" "InstallPath"
-    
-    ${If} $NodePath == ""
-        StrCpy $NodeInstalled "false"
-    ${Else}
-        StrCpy $NodeInstalled "true"
-    ${EndIf}
-FunctionEnd
-
-Function InstallPython
-    ; Download Python installer
-    DetailPrint "Download Python installer..."
-    NSISdl::download "https://www.python.org/ftp/python/3.11.7/python-3.11.7-amd64.exe" "$TEMP\python-installer.exe"
-    Pop $0
-    
-    ${If} $0 == "success"
-        DetailPrint "Installazione Python..."
-        ExecWait '"$TEMP\python-installer.exe" /quiet InstallAllUsers=1 PrependPath=1 Include_test=0'
-        Delete "$TEMP\python-installer.exe"
-        DetailPrint "Python installato con successo!"
-    ${Else}
-        MessageBox MB_OK "Errore nel download di Python. Installazione fallita."
-        Abort
-    ${EndIf}
-FunctionEnd
-
-Function InstallNode
-    ; Download Node.js installer
-    DetailPrint "Download Node.js installer..."
-    NSISdl::download "https://nodejs.org/dist/v20.10.0/node-v20.10.0-x64.msi" "$TEMP\node-installer.msi"
-    Pop $0
-    
-    ${If} $0 == "success"
-        DetailPrint "Installazione Node.js..."
-        ExecWait 'msiexec /i "$TEMP\node-installer.msi" /quiet'
-        Delete "$TEMP\node-installer.msi"
-        DetailPrint "Node.js installato con successo!"
-    ${Else}
-        MessageBox MB_OK "Errore nel download di Node.js. Installazione fallita."
-        Abort
-    ${EndIf}
-FunctionEnd
-
-Function .onInit
-    ; Check if already installed
-    ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DDT Manager" "UninstallString"
-    StrCmp $R0 "" done
-    
-    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION "DDT Manager è già installato. $\n$\nClicca OK per disinstallare la versione precedente o Annulla per annullare l'installazione." IDOK uninst
-    Abort
-    
-    uninst:
-        ClearErrors
-        ExecWait '$R0 _?=$INSTDIR'
-        
-        IfErrors no_remove_uninstaller done
-        no_remove_uninstaller:
-    
-    done:
-FunctionEnd
-
-;--------------------------------
-; Uninstaller Section
-
+; Sezione di disinstallazione
 Section "Uninstall"
-    ; Remove files and uninstaller
-    Delete "$INSTDIR\Uninstall.exe"
-    Delete "$INSTDIR\DDT Manager.exe"
-    Delete "$INSTDIR\LICENSE"
-    Delete "$INSTDIR\README.txt"
-    
-    ; Remove directories
+    ; Rimuovi file
     RMDir /r "$INSTDIR"
     
-    ; Remove Start Menu shortcuts
-    !insertmacro MUI_STARTMENU_GETFOLDER "Application" $StartMenuFolder
-    Delete "$SMPROGRAMS\$StartMenuFolder\DDT Manager.lnk"
-    Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
-    Delete "$SMPROGRAMS\$StartMenuFolder\README.lnk"
-    RMDir "$SMPROGRAMS\$StartMenuFolder"
+    ; Rimuovi collegamenti
+    Delete "$DESKTOP\${APP_NAME}.lnk"
+    RMDir /r "$SMPROGRAMS\${APP_NAME}"
     
-    ; Remove Desktop shortcut
-    Delete "$DESKTOP\DDT Manager.lnk"
-    
-    ; Remove Quick Launch shortcut
-    Delete "$QUICKLAUNCH\DDT Manager.lnk"
-    
-    ; Remove registry keys
-    DeleteRegKey HKCU "Software\DDT Manager"
-    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DDT Manager"
-    
-    ; Remove application data
-    RMDir /r "$APPDATA\DDT Manager"
+    ; Rimuovi chiavi di registro
+    DeleteRegKey HKLM "Software\${APP_NAME}"
+    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}"
 SectionEnd
 
-;--------------------------------
-; Uninstaller Functions
+; Funzioni
+Function .onInit
+    ; Verifica versione Windows
+    ${IfNot} ${AtLeastWin7}
+        MessageBox MB_OK "Questo software richiede Windows 7 o superiore."
+        Quit
+    ${EndIf}
+    
+    ; Verifica architettura
+    ${If} ${RunningX64}
+        ; OK, sistema a 64 bit
+    ${Else}
+        MessageBox MB_YESNO "Questo software è ottimizzato per sistemi a 64 bit. Continuare comunque?" IDYES continue_install IDNO quit_install
+        continue_install:
+        Goto end_arch_check
+        quit_install:
+        Quit
+        end_arch_check:
+    ${EndIf}
+FunctionEnd
 
-Function un.onInit
-    MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "Sei sicuro di voler disinstallare DDT Manager?" IDYES +2
-    Abort
+Function .onInstSuccess
+    MessageBox MB_YESNO "Installazione completata! Vuoi avviare DDT Manager ora?" IDYES start_app IDNO end_install
+    start_app:
+        Exec "$INSTDIR\start_ddt.bat"
+    end_install:
 FunctionEnd

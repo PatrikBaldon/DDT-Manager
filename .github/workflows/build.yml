@@ -1,0 +1,239 @@
+name: Build DDT Manager
+
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Install Node.js dependencies
+      run: npm install
+      
+    - name: Setup Django
+      run: |
+        python manage.py migrate
+        python manage.py collectstatic --noinput
+        
+    - name: Build Electron app
+      run: npm run build-win
+      
+    - name: Upload Windows artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ddt-manager-windows
+        path: dist/
+        
+    - name: Create Windows installer
+      run: |
+        # Installa NSIS
+        choco install nsis -y
+        
+        # Crea installer
+        makensis installer/nsis/ddt-installer.nsi
+        
+    - name: Upload Windows installer
+      uses: actions/upload-artifact@v4
+      with:
+        name: ddt-manager-windows-installer
+        path: DDT_Manager_Setup_*.exe
+
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Install Node.js dependencies
+      run: npm install
+        
+    - name: Setup Django
+      run: |
+        python manage.py migrate
+        python manage.py collectstatic --noinput
+        
+    - name: Build Electron app
+      run: npm run build-mac
+      
+    - name: Upload macOS artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ddt-manager-macos
+        path: dist/
+        
+    - name: Create macOS installer
+      run: |
+        # Crea DMG
+        npm install -g electron-builder
+        electron-builder --mac dmg
+        
+    - name: Upload macOS installer
+      uses: actions/upload-artifact@v4
+      with:
+        name: ddt-manager-macos-installer
+        path: dist/*.dmg
+
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-pip python3-venv
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Install Node.js dependencies
+      run: npm install
+        
+    - name: Setup Django
+      run: |
+        python manage.py migrate
+        python manage.py collectstatic --noinput
+        
+    - name: Build Electron app
+      run: npm run build-linux
+      
+    - name: Upload Linux artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ddt-manager-linux
+        path: dist/
+        
+    - name: Create Linux installer
+      run: |
+        # Crea AppImage
+        npm install -g electron-builder
+        electron-builder --linux AppImage
+        
+    - name: Upload Linux installer
+      uses: actions/upload-artifact@v4
+      with:
+        name: ddt-manager-linux-installer
+        path: dist/*.AppImage
+
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download Windows installer
+      uses: actions/download-artifact@v4
+      with:
+        name: ddt-manager-windows-installer
+        path: dist/windows/
+        
+    - name: Download macOS installer
+      uses: actions/download-artifact@v4
+      with:
+        name: ddt-manager-macos-installer
+        path: dist/macos/
+        
+    - name: Download Linux installer
+      uses: actions/download-artifact@v4
+      with:
+        name: ddt-manager-linux-installer
+        path: dist/linux/
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/windows/*
+          dist/macos/*
+          dist/linux/*
+        body: |
+          ## DDT Manager v${{ github.ref_name }}
+          
+          ### Installazione
+          
+          **Windows:**
+          - Scarica `DDT_Manager_Setup_*.exe`
+          - Esegui l'installer come amministratore
+          - Segui le istruzioni per installare Python e Node.js se necessario
+          
+          **macOS:**
+          - Scarica `DDT_Manager-*.dmg`
+          - Apri il file DMG
+          - Trascina l'applicazione in Applications
+          
+          **Linux:**
+          - Scarica `DDT_Manager-*.AppImage`
+          - Rendi eseguibile: `chmod +x DDT_Manager-*.AppImage`
+          - Esegui: `./DDT_Manager-*.AppImage`
+          
+          ### Note
+          - Assicurati di avere Python 3.8+ e Node.js 16+ installati
+          - L'applicazione funziona offline dopo l'installazione
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

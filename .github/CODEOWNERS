@@ -1,15 +1,41 @@
-# Global code owners
+# DDT-Application - Code Owners
+# Questo file definisce chi è responsabile per le diverse parti del codice
+
+# Proprietario principale del progetto
 * @PatrikBaldon
 
-# Django app
-/ddt_app/ @PatrikBaldon
-/ddt_project/ @PatrikBaldon
-/templates/ @PatrikBaldon
-/static/ @PatrikBaldon
+# File di configurazione del progetto
+/.github/ @PatrikBaldon
+/package.json @PatrikBaldon
+/electron-builder.json @PatrikBaldon
+/requirements.txt @PatrikBaldon
 
-# Installer
+# Applicazione Electron
+/electron/ @PatrikBaldon
+
+# Installer e script di distribuzione
 /installer/ @PatrikBaldon
 
-# Documentation
-README.md @PatrikBaldon
-LICENSE @PatrikBaldon
+# Configurazione Django
+/ddt_project/ @PatrikBaldon
+/ddt_app/ @PatrikBaldon
+/manage.py @PatrikBaldon
+
+# File statici e template
+/static/ @PatrikBaldon
+/templates/ @PatrikBaldon
+
+# Documentazione
+/README.md @PatrikBaldon
+/App_details.md @PatrikBaldon
+/electron/README.md @PatrikBaldon
+
+# Script di build e distribuzione
+/scripts/ @PatrikBaldon
+/Makefile @PatrikBaldon
+
+# Test
+/tests/ @PatrikBaldon
+
+# Configurazione
+/config/ @PatrikBaldon

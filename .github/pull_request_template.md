@@ -1,26 +1,80 @@
-## Descrizione
+# 🔄 Pull Request - DDT-Application
+
+## 📝 Descrizione
 Breve descrizione delle modifiche apportate.
 
-## Tipo di modifica
-- [ ] Bug fix (modifica che risolve un problema)
-- [ ] Nuova feature (modifica che aggiunge funzionalità)
-- [ ] Breaking change (modifica che potrebbe causare problemi di compatibilità)
-- [ ] Documentazione (modifica solo alla documentazione)
+## 🔗 Issue Correlata
+Closes #[numero-issue]
 
-## Come testare
-1. Passi per testare le modifiche
-2. Cosa verificare
-3. Come riprodurre il problema (se applicabile)
+## 🎯 Tipo di Modifica
+- [ ] 🐛 Bug fix
+- [ ] ✨ Nuova funzionalità
+- [ ] 💥 Breaking change
+- [ ] 📚 Documentazione
+- [ ] 🎨 Stile/UI
+- [ ] ♻️ Refactoring
+- [ ] ⚡ Performance
+- [ ] 🧪 Test
+- [ ] 🔧 Build/CI
 
-## Checklist
-- [ ] Il codice segue le convenzioni del progetto
-- [ ] Ho eseguito i test localmente
-- [ ] Ho aggiornato la documentazione se necessario
-- [ ] Le modifiche non introducono nuovi warning
-- [ ] Ho aggiunto test per le nuove funzionalità
+## 🧪 Test
+- [ ] Test unitari passano
+- [ ] Test di integrazione passano
+- [ ] Test manuali eseguiti
+- [ ] Test su Windows
+- [ ] Test su macOS
+- [ ] Test su Linux
 
-## Screenshots (se applicabile)
-Aggiungi screenshot per mostrare le modifiche visive.
+## 📱 Piattaforme Testate
+- [ ] Windows 10/11
+- [ ] macOS 10.15+
+- [ ] Linux (Ubuntu/Fedora/Arch)
 
-## Note aggiuntive
-Qualsiasi altra informazione rilevante per i reviewer.
+## 🔧 Installer
+- [ ] Installer Windows funziona
+- [ ] Installer macOS funziona
+- [ ] AppImage Linux funziona
+- [ ] Aggiornamenti automatici funzionano
+
+## 📚 Documentazione
+- [ ] README aggiornato
+- [ ] Documentazione codice aggiornata
+- [ ] Commenti aggiunti
+- [ ] Changelog aggiornato
+
+## 🎨 UI/UX
+- [ ] Interfaccia coerente
+- [ ] Responsive design
+- [ ] Accessibilità migliorata
+- [ ] Icone/immagini appropriate
+
+## 🔒 Sicurezza
+- [ ] Validazione input
+- [ ] Gestione errori sicura
+- [ ] Nessun dato sensibile esposto
+- [ ] Comunicazione sicura
+
+## 📊 Performance
+- [ ] Nessun impatto negativo su performance
+- [ ] Memoria utilizzata ottimizzata
+- [ ] Tempo di avvio mantenuto
+- [ ] Operazioni veloci
+
+## 🔄 Checklist Pre-Merge
+- [ ] Codice rivisto
+- [ ] Test passano
+- [ ] Documentazione aggiornata
+- [ ] Changelog aggiornato
+- [ ] Version bump (se necessario)
+- [ ] Build funziona
+- [ ] Installer funziona
+
+## 📸 Screenshot
+Se applicabile, aggiungi screenshot delle modifiche.
+
+## 📋 Note Aggiuntive
+Aggiungi qualsiasi altra informazione utile per i reviewer.
+
+---
+
+**Reviewer**: @PatrikBaldon
