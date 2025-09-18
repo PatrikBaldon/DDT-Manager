@@ -2,7 +2,7 @@
   "name": "ddt-electron-app",
   "version": "1.0.0",
   "description": "Applicazione Electron per la gestione DDT",
-  "main": "electron/main.js",
+  "main": "electron/launcher.js",
   "scripts": {
     "electron": "electron .",
     "electron-dev": "concurrently \"npm run start-django\" \"wait-on http://localhost:8000 && electron .\"",
@@ -34,7 +34,9 @@
   },
   "dependencies": {
     "electron-store": "^8.1.0",
-    "electron-updater": "^6.1.7"
+    "electron-updater": "^6.1.7",
+    "node-cron": "^3.0.3",
+    "date-fns": "^2.30.0"
   },
   "build": {
     "appId": "com.aziendaagricola.ddt",
