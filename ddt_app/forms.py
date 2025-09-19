@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import DDT, DDTRiga, Mittente, SedeMittente, Destinatario, Destinazione, Vettore, TargaVettore, Articolo, FormatoNumerazioneDDT, CausaleTrasporto
+from .models import DDT, DDTRiga, Mittente, SedeMittente, Destinatario, Destinazione, Vettore, Autista, TargaVettore, Articolo, FormatoNumerazioneDDT, CausaleTrasporto
 
 
 class DDTForm(forms.ModelForm):
@@ -26,9 +26,51 @@ class DDTForm(forms.ModelForm):
         self.fields['sede_mittente'].queryset = SedeMittente.objects.filter(attiva=True)
         self.fields['causale_trasporto'].queryset = CausaleTrasporto.objects.filter(attiva=True)
         
-        # Se è una modifica, imposta il valore iniziale
+        # Aggiungi classi CSS ai campi select
+        self.fields['mittente'].widget.attrs.update({'class': 'form-control'})
+        self.fields['destinatario'].widget.attrs.update({'class': 'form-control'})
+        self.fields['vettore'].widget.attrs.update({'class': 'form-control'})
+        self.fields['causale_trasporto'].widget.attrs.update({'class': 'form-control'})
+        
+        # Configura i campi autista e targa_vettore
+        self.fields['autista'].queryset = Autista.objects.none()
+        self.fields['targa_vettore'].queryset = TargaVettore.objects.none()
+        self.fields['targa_vettore_2'].queryset = TargaVettore.objects.none()
+        self.fields['autista'].required = False
+        self.fields['targa_vettore'].required = False
+        self.fields['targa_vettore_2'].required = False
+        
+        # Se è una modifica, imposta i queryset basati sul vettore esistente
+        if self.instance and self.instance.pk and self.instance.vettore:
+            self.fields['autista'].queryset = Autista.objects.filter(vettore=self.instance.vettore, attivo=True)
+            self.fields['targa_vettore'].queryset = TargaVettore.objects.filter(vettore=self.instance.vettore, attiva=True)
+            self.fields['targa_vettore_2'].queryset = TargaVettore.objects.filter(vettore=self.instance.vettore, attiva=True)
+        elif 'vettore' in self.data:
+            try:
+                vettore_id = int(self.data.get('vettore'))
+                if vettore_id:
+                    self.fields['autista'].queryset = Autista.objects.filter(vettore_id=vettore_id, attivo=True)
+                    self.fields['targa_vettore'].queryset = TargaVettore.objects.filter(vettore_id=vettore_id, attiva=True)
+                    self.fields['targa_vettore_2'].queryset = TargaVettore.objects.filter(vettore_id=vettore_id, attiva=True)
+            except (ValueError, TypeError):
+                pass
+        
+        # Aggiungi JavaScript per mostrare/nascondere il campo note centrali
+        self.fields['note_centrali'].widget.attrs.update({
+            'data-toggle': 'note-centrali',
+            'placeholder': 'Inserisci le note da mostrare al centro delle righe della tabella prodotti...'
+        })
+        
+        # Se è una modifica, imposta i valori iniziali
         if self.instance and self.instance.pk:
             self.fields['trasporto_mezzo'].initial = self.instance.trasporto_mezzo
+            
+            # Carica le sedi del mittente esistente
+            if self.instance.mittente:
+                self.fields['sede_mittente'].queryset = SedeMittente.objects.filter(
+                    mittente=self.instance.mittente, 
+                    attiva=True
+                )
     
     def clean_destinazione_id(self):
         destinazione_id = self.cleaned_data.get('destinazione_id')
@@ -66,6 +108,31 @@ class DDTForm(forms.ModelForm):
             if not destinatario:
                 raise forms.ValidationError("Devi selezionare un destinatario quando il trasporto è a mezzo destinatario.")
         
+        # Validazione autista e targa quando è selezionato un vettore
+        if vettore:
+            autista = cleaned_data.get('autista')
+            targa_vettore = cleaned_data.get('targa_vettore')
+            targa_vettore_2 = cleaned_data.get('targa_vettore_2')
+            
+            # Validazione autista (opzionale)
+            if autista:
+                if hasattr(autista, 'vettore') and autista.vettore != vettore:
+                    raise forms.ValidationError("L'autista selezionato non appartiene al vettore scelto.")
+            
+            # Validazione targa 1 (opzionale)
+            if targa_vettore:
+                if hasattr(targa_vettore, 'vettore') and targa_vettore.vettore != vettore:
+                    raise forms.ValidationError("La targa 1 selezionata non appartiene al vettore scelto.")
+            
+            # Validazione targa 2 (opzionale)
+            if targa_vettore_2:
+                if hasattr(targa_vettore_2, 'vettore') and targa_vettore_2.vettore != vettore:
+                    raise forms.ValidationError("La targa 2 selezionata non appartiene al vettore scelto.")
+            
+            # Validazione che le due targhe siano diverse
+            if targa_vettore and targa_vettore_2 and targa_vettore == targa_vettore_2:
+                raise forms.ValidationError("Le due targhe devono essere diverse.")
+        
         return cleaned_data
     
     def save(self, commit=True):
@@ -85,7 +152,7 @@ class DDTForm(forms.ModelForm):
         fields = [
             'numero', 'data_documento', 'mittente', 'sede_mittente', 'destinatario',
             'causale_trasporto', 'luogo_destinazione', 'trasporto_mezzo',
-            'data_ritiro', 'vettore', 'annotazioni', 'note_centrali'
+            'data_ritiro', 'vettore', 'autista', 'targa_vettore', 'targa_vettore_2', 'annotazioni', 'note_centrali'
         ]
         widgets = {
             'numero': forms.TextInput(attrs={
@@ -106,9 +173,10 @@ class DDTForm(forms.ModelForm):
             'causale_trasporto': forms.Select(attrs={
                 'class': 'form-control'
             }),
-            'luogo_destinazione': forms.TextInput(attrs={
+            'luogo_destinazione': forms.Textarea(attrs={
                 'class': 'form-control',
-                'placeholder': 'Indirizzo completo di destinazione'
+                'placeholder': 'Indirizzo completo di destinazione',
+                'rows': 3
             }),
             'trasporto_mezzo': forms.Select(attrs={
                 'class': 'form-control'
@@ -123,47 +191,16 @@ class DDTForm(forms.ModelForm):
                 'rows': 4,
                 'placeholder': 'Note da inserire al centro delle righe della tabella prodotti...'
             }),
+            'autista': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'targa_vettore': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'targa_vettore_2': forms.Select(attrs={
+                'class': 'form-control'
+            }),
         }
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Opzioni per causale di trasporto
-        self.fields['causale_trasporto'].widget = forms.Select(
-            choices=[
-                ('', 'Seleziona causale...'),
-                ('Vendita', 'Vendita'),
-                ('Reso', 'Reso'),
-                ('Trasferimento tra sedi', 'Trasferimento tra sedi'),
-                ('Campione gratuito', 'Campione gratuito'),
-                ('Riparazione', 'Riparazione'),
-                ('Sostituzione', 'Sostituzione'),
-                ('Omaggio', 'Omaggio'),
-                ('Vendita con sconto', 'Vendita con sconto'),
-                ('Trasferimento magazzino', 'Trasferimento magazzino'),
-                ('Altro', 'Altro'),
-            ],
-            attrs={'class': 'form-control'}
-        )
-        
-        # Configura le scelte per trasporto_mezzo
-        self.fields['trasporto_mezzo'].widget = forms.RadioSelect(choices=[
-            ('mittente', 'Mittente'),
-            ('vettore', 'Vettore'),
-            ('destinatario', 'Destinatario'),
-        ])
-        
-        
-        # Aggiungi classi CSS ai campi select
-        self.fields['mittente'].widget.attrs.update({'class': 'form-control'})
-        self.fields['destinatario'].widget.attrs.update({'class': 'form-control'})
-        self.fields['vettore'].widget.attrs.update({'class': 'form-control'})
-        
-        # Aggiungi JavaScript per mostrare/nascondere il campo note centrali
-        self.fields['note_centrali'].widget.attrs.update({
-            'data-toggle': 'note-centrali',
-            'placeholder': 'Inserisci le note da mostrare al centro delle righe della tabella prodotti...'
-        })
 
 
 class DDTRigaForm(forms.ModelForm):
@@ -214,7 +251,7 @@ class MittenteForm(forms.ModelForm):
     
     class Meta:
         model = Mittente
-        fields = ['nome', 'piva', 'cf', 'telefono', 'email', 'pec', 'note']
+        fields = ['nome', 'piva', 'cf', 'telefono', 'email', 'pec', 'logo', 'note']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
             'piva': forms.TextInput(attrs={'class': 'form-control', 'maxlength': '11'}),
@@ -222,6 +259,7 @@ class MittenteForm(forms.ModelForm):
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'pec': forms.EmailInput(attrs={'class': 'form-control'}),
+            'logo': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'note': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
@@ -250,7 +288,7 @@ class VettoreForm(forms.ModelForm):
     
     class Meta:
         model = Vettore
-        fields = ['nome', 'indirizzo', 'cap', 'citta', 'provincia', 'piva', 'cf', 'telefono', 'email', 'note']
+        fields = ['nome', 'indirizzo', 'cap', 'citta', 'provincia', 'piva', 'cf', 'telefono', 'email', 'autorizzazione_animali_vivi', 'licenza_bdn', 'note']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
             'indirizzo': forms.TextInput(attrs={'class': 'form-control'}),
@@ -261,6 +299,23 @@ class VettoreForm(forms.ModelForm):
             'cf': forms.TextInput(attrs={'class': 'form-control', 'maxlength': '16', 'style': 'text-transform: uppercase'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'autorizzazione_animali_vivi': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'licenza_bdn': forms.TextInput(attrs={'class': 'form-control'}),
+            'note': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+
+class AutistaForm(forms.ModelForm):
+    """Form per la gestione degli autisti"""
+    
+    class Meta:
+        model = Autista
+        fields = ['nome', 'cognome', 'patente', 'attivo', 'note']
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'cognome': forms.TextInput(attrs={'class': 'form-control'}),
+            'patente': forms.TextInput(attrs={'class': 'form-control'}),
+            'attivo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'note': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 

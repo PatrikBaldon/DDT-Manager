@@ -10,6 +10,7 @@ class Mittente(models.Model):
     telefono = models.CharField(max_length=20, verbose_name="Telefono")
     email = models.EmailField(verbose_name="Email")
     pec = models.EmailField(verbose_name="PEC", blank=True)
+    logo = models.ImageField(upload_to='logos/', blank=True, null=True, verbose_name="Logo")
     note = models.TextField(blank=True, verbose_name="Note")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -98,9 +99,8 @@ class Vettore(models.Model):
     cf = models.CharField(max_length=16, verbose_name="Codice Fiscale")
     telefono = models.CharField(max_length=20, verbose_name="Telefono")
     email = models.EmailField(verbose_name="Email")
-    autista = models.CharField(max_length=100, verbose_name="Nome Autista")
-    patente = models.CharField(max_length=20, verbose_name="Numero Patente")
-    licenza_bdn = models.CharField(max_length=100, blank=True, verbose_name="Licenza BDN per Trasporto Animali Vivi")
+    autorizzazione_animali_vivi = models.BooleanField(default=False, verbose_name="Autorizzazione Trasporto Animali Vivi")
+    licenza_bdn = models.CharField(max_length=100, blank=True, verbose_name="Numero Licenza BDN")
     note = models.TextField(blank=True, verbose_name="Note")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -111,7 +111,27 @@ class Vettore(models.Model):
         ordering = ['nome']
 
     def __str__(self):
-        return f"{self.nome} - {self.autista}"
+        return self.nome
+
+
+class Autista(models.Model):
+    """Modello per gli autisti dei vettori"""
+    vettore = models.ForeignKey(Vettore, on_delete=models.CASCADE, related_name='autisti')
+    nome = models.CharField(max_length=50, verbose_name="Nome")
+    cognome = models.CharField(max_length=50, verbose_name="Cognome")
+    patente = models.CharField(max_length=20, blank=True, verbose_name="Numero Patente")
+    attivo = models.BooleanField(default=True, verbose_name="Attivo")
+    note = models.TextField(blank=True, verbose_name="Note")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Autista"
+        verbose_name_plural = "Autisti"
+        ordering = ['cognome', 'nome']
+
+    def __str__(self):
+        return f"{self.nome} {self.cognome} - {self.vettore.nome}"
 
 
 class TargaVettore(models.Model):
@@ -173,7 +193,9 @@ class DDT(models.Model):
     )
     data_ritiro = models.DateField(verbose_name="Data Ritiro")
     vettore = models.ForeignKey(Vettore, on_delete=models.PROTECT, verbose_name="Vettore")
-    targa_vettore = models.ForeignKey(TargaVettore, on_delete=models.PROTECT, verbose_name="Targa Veicolo", null=True, blank=True)
+    autista = models.ForeignKey(Autista, on_delete=models.PROTECT, verbose_name="Autista", null=True, blank=True)
+    targa_vettore = models.ForeignKey(TargaVettore, on_delete=models.PROTECT, verbose_name="Targa Veicolo 1", null=True, blank=True, related_name='ddt_targa_1')
+    targa_vettore_2 = models.ForeignKey(TargaVettore, on_delete=models.PROTECT, verbose_name="Targa Veicolo 2", null=True, blank=True, related_name='ddt_targa_2')
     annotazioni = models.TextField(blank=True, verbose_name="Annotazioni")
     # Campo per note centrali nelle righe della tabella
     note_centrali = models.TextField(

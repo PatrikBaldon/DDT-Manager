@@ -6,7 +6,7 @@
   "scripts": {
     "electron": "electron .",
     "electron-dev": "concurrently \"npm run start-django\" \"wait-on http://localhost:8000 && electron .\"",
-    "start-django": "cd .. && python manage.py runserver",
+    "start-django": "python manage.py runserver",
     "build": "electron-builder",
     "build-win": "electron-builder --win",
     "build-mac": "electron-builder --mac",

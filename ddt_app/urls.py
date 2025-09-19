@@ -34,6 +34,7 @@ urlpatterns = [
     path('mittenti/create/', views.mittente_create, name='mittente_create'),
     path('destinatari/create/', views.destinatario_create, name='destinatario_create'),
     path('vettori/create/', views.vettore_create, name='vettore_create'),
+    path('vettori/<int:vettore_id>/autisti/create/', views.autista_create, name='autista_create'),
     path('mittenti/<int:mittente_id>/', views.mittente_detail, name='mittente_detail'),
     path('mittenti/<int:mittente_id>/edit/', views.mittente_edit, name='mittente_edit'),
     path('mittenti/<int:mittente_id>/delete/', views.mittente_delete, name='mittente_delete'),

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
-    Mittente, SedeMittente, Destinatario, Destinazione, Vettore, TargaVettore, Articolo, 
+    Mittente, SedeMittente, Destinatario, Destinazione, Vettore, Autista, TargaVettore, Articolo, 
     DDT, DDTRiga, Configurazione, CausaleTrasporto
 )
 
@@ -13,11 +13,17 @@ class SedeMittenteInline(admin.TabularInline):
 
 @admin.register(Mittente)
 class MittenteAdmin(admin.ModelAdmin):
-    list_display = ['nome', 'piva', 'telefono', 'email', 'created_at']
+    list_display = ['nome', 'piva', 'telefono', 'email', 'logo_preview', 'created_at']
     list_filter = ['created_at']
     search_fields = ['nome', 'piva', 'cf']
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'logo_preview']
     inlines = [SedeMittenteInline]
+    
+    def logo_preview(self, obj):
+        if obj.logo:
+            return format_html('<img src="{}" style="max-height: 50px; max-width: 50px;" />', obj.logo.url)
+        return "Nessun logo"
+    logo_preview.short_description = "Logo"
 
 
 @admin.register(SedeMittente)
@@ -49,11 +55,19 @@ class TargaVettoreInline(admin.TabularInline):
 
 @admin.register(Vettore)
 class VettoreAdmin(admin.ModelAdmin):
-    list_display = ['nome', 'autista', 'telefono', 'licenza_bdn', 'created_at']
-    list_filter = ['provincia', 'created_at']
-    search_fields = ['nome', 'autista', 'piva', 'licenza_bdn']
+    list_display = ['nome', 'telefono', 'autorizzazione_animali_vivi', 'licenza_bdn', 'created_at']
+    list_filter = ['provincia', 'autorizzazione_animali_vivi', 'created_at']
+    search_fields = ['nome', 'piva', 'cf', 'licenza_bdn']
     readonly_fields = ['created_at', 'updated_at']
     inlines = [TargaVettoreInline]
+
+
+@admin.register(Autista)
+class AutistaAdmin(admin.ModelAdmin):
+    list_display = ['nome', 'cognome', 'vettore', 'patente', 'attivo', 'created_at']
+    list_filter = ['attivo', 'vettore', 'created_at']
+    search_fields = ['nome', 'cognome', 'patente', 'vettore__nome']
+    readonly_fields = ['created_at', 'updated_at']
 
 
 @admin.register(TargaVettore)
@@ -80,7 +94,7 @@ class DDTRigaInline(admin.TabularInline):
 
 @admin.register(DDT)
 class DDTAdmin(admin.ModelAdmin):
-    list_display = ['numero', 'data_documento', 'mittente', 'destinatario', 'causale_trasporto', 'created_at']
+    list_display = ['numero', 'data_documento', 'mittente', 'destinatario', 'causale_trasporto', 'vettore', 'autista', 'targa_vettore', 'targa_vettore_2', 'created_at']
     list_filter = ['data_documento', 'causale_trasporto', 'mittente', 'destinatario', 'created_at']
     search_fields = ['numero', 'mittente__nome', 'destinatario__nome']
     readonly_fields = ['created_at', 'updated_at', 'totale_quantita', 'totale_valore']
@@ -95,7 +109,7 @@ class DDTAdmin(admin.ModelAdmin):
             'fields': ('mittente', 'sede_mittente', 'destinatario', 'destinazione', 'luogo_destinazione')
         }),
         ('Trasporto', {
-            'fields': ('trasporto_mezzo', 'data_ritiro', 'vettore', 'targa_vettore')
+            'fields': ('trasporto_mezzo', 'data_ritiro', 'vettore', 'autista', 'targa_vettore', 'targa_vettore_2')
         }),
         ('Note e Totali', {
             'fields': ('annotazioni', 'totale_quantita', 'totale_valore')

@@ -49,12 +49,12 @@
                         <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
-                                    <th style="width: 20%;">Nome Azienda</th>
-                                    <th style="width: 15%;">Autista</th>
+                                    <th style="width: 25%;">Nome Azienda</th>
                                     <th style="width: 12%;">P.IVA</th>
                                     <th style="width: 10%;">Tel</th>
                                     <th style="width: 20%;">Email</th>
                                     <th style="width: 8%;">Targhe</th>
+                                    <th style="width: 8%;">Autisti</th>
                                     <th style="width: 15%;">Azioni</th>
                                 </tr>
                             </thead>
@@ -62,14 +62,16 @@
                                 {% for vettore in vettori %}
                                 <tr>
                                     <td>
-                                        <strong>{{ vettore.nome|truncatechars:25 }}</strong>
+                                        <strong>{{ vettore.nome|truncatechars:30 }}</strong>
                                     </td>
-                                    <td>{{ vettore.autista|truncatechars:20 }}</td>
                                     <td>{{ vettore.piva }}</td>
                                     <td>{{ vettore.telefono|truncatechars:15 }}</td>
                                     <td>{{ vettore.email|truncatechars:25 }}</td>
                                     <td>
                                         <span class="badge">{{ vettore.targhe.count }} targa{{ vettore.targhe.count|pluralize }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge">{{ vettore.autisti.count }} autista{{ vettore.autisti.count|pluralize }}</span>
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
@@ -80,6 +82,10 @@
                                             <a href="{% url 'ddt_app:vettore_edit' vettore.id %}" 
                                                class="btn btn-outline-warning btn-sm" title="Modifica">
                                                 Mod
+                                            </a>
+                                            <a href="{% url 'ddt_app:vettore_detail' vettore.id %}" 
+                                               class="btn btn-outline-info btn-sm" title="Gestisci Autisti e Targhe">
+                                                Gestisci
                                             </a>
                                             {% if vettore.ddt_set.count > 0 %}
                                                 <button class="btn btn-outline-secondary btn-sm" disabled title="Impossibile eliminare: ci sono DDT associati">

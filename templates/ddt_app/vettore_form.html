@@ -140,6 +140,22 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form.autorizzazione_animali_vivi }}
+                                    <label class="form-check-label" for="{{ form.autorizzazione_animali_vivi.id_for_label }}">
+                                        Autorizzazione Trasporto Animali Vivi
+                                    </label>
+                                </div>
+                                {% if form.autorizzazione_animali_vivi.errors %}
+                                    <div class="text-danger">{{ form.autorizzazione_animali_vivi.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
                                 <label for="{{ form.note.id_for_label }}" class="form-label">
                                     Note
                                 </label>

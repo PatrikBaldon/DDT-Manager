@@ -8,8 +8,8 @@ from django.db.models import Q
 from django.utils import timezone
 import json
 import os
-from .models import DDT, DDTRiga, Mittente, SedeMittente, Destinatario, Destinazione, Vettore, TargaVettore, Articolo, FormatoNumerazioneDDT, CausaleTrasporto
-from .forms import DDTForm, DDTRigaFormSet, DestinazioneForm, FormatoNumerazioneDDTForm, MittenteForm, DestinatarioForm, VettoreForm, CausaleTrasportoForm
+from .models import DDT, DDTRiga, Mittente, SedeMittente, Destinatario, Destinazione, Vettore, Autista, TargaVettore, Articolo, FormatoNumerazioneDDT, CausaleTrasporto
+from .forms import DDTForm, DDTRigaFormSet, DestinazioneForm, FormatoNumerazioneDDTForm, MittenteForm, DestinatarioForm, VettoreForm, AutistaForm, CausaleTrasportoForm
 from .pdf_generator_advanced import create_ddt_pdf as generate_ddt_pdf
 from .utils import genera_numero_ddt, get_prossimo_numero_ddt
 
@@ -567,6 +567,29 @@ def vettore_create(request):
     return render(request, 'ddt_app/vettore_form.html', context)
 
 
+def autista_create(request, vettore_id):
+    """Crea nuovo autista per un vettore"""
+    vettore = get_object_or_404(Vettore, id=vettore_id)
+    
+    if request.method == 'POST':
+        form = AutistaForm(request.POST)
+        if form.is_valid():
+            autista = form.save(commit=False)
+            autista.vettore = vettore
+            autista.save()
+            messages.success(request, f'Autista "{autista.nome} {autista.cognome}" creato con successo!')
+            return redirect('ddt_app:vettore_detail', vettore_id=vettore.id)
+    else:
+        form = AutistaForm()
+    
+    context = {
+        'form': form,
+        'vettore': vettore,
+        'title': f'Nuovo Autista - {vettore.nome}',
+    }
+    return render(request, 'ddt_app/autista_form.html', context)
+
+
 def mittente_detail(request, mittente_id):
     """Dettaglio mittente con sedi"""
     mittente = get_object_or_404(Mittente, id=mittente_id)
@@ -813,13 +836,15 @@ def vettore_list(request):
 
 
 def vettore_detail(request, vettore_id):
-    """Dettaglio vettore con targhe"""
+    """Dettaglio vettore con targhe e autisti"""
     vettore = get_object_or_404(Vettore, id=vettore_id)
     targhe = vettore.targhe.all().order_by('targa')
+    autisti = vettore.autisti.all().order_by('cognome', 'nome')
     
     context = {
         'vettore': vettore,
         'targhe': targhe,
+        'autisti': autisti,
     }
     return render(request, 'ddt_app/vettore_detail.html', context)
 

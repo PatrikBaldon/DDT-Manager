@@ -18,7 +18,7 @@
                 <h5 class="mb-0">Dati Azienda</h5>
             </div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     
                     <div class="row">
@@ -120,7 +120,39 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-md-6">
+                            <div class="form-section">
+                                <h5>Logo Aziendale</h5>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ form.logo.id_for_label }}" class="form-label">
+                                        {{ form.logo.label }}
+                                    </label>
+                                    {{ form.logo }}
+                                    {% if form.logo.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.logo.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">
+                                        Carica un logo per la tua azienda (formati supportati: JPG, PNG, GIF)
+                                    </small>
+                                    {% if form.instance.logo %}
+                                        <div class="mt-2">
+                                            <p><strong>Logo attuale:</strong></p>
+                                            <img src="{{ form.instance.logo.url }}" alt="Logo attuale" 
+                                                 style="max-height: 100px; max-width: 200px;" class="border rounded">
+                                            <br>
+                                            <small class="text-muted">{{ form.instance.logo.name }}</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
                             <div class="form-section">
                                 <h5>Note</h5>
                                 

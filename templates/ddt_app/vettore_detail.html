@@ -38,15 +38,19 @@
                         <p><strong>Nome:</strong> {{ vettore.nome }}</p>
                         <p><strong>P.IVA:</strong> {{ vettore.piva }}</p>
                         <p><strong>Codice Fiscale:</strong> {{ vettore.cf }}</p>
-                        <p><strong>Autista:</strong> {{ vettore.autista }}</p>
+                        <p><strong>Telefono:</strong> {{ vettore.telefono }}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Telefono:</strong> {{ vettore.telefono }}</p>
                         <p><strong>Email:</strong> {{ vettore.email }}</p>
-                        <p><strong>Patente:</strong> {{ vettore.patente }}</p>
-                        {% if vettore.licenza_bdn %}
-                            <p><strong>Licenza BDN:</strong> {{ vettore.licenza_bdn }}</p>
-                        {% endif %}
+                        <p><strong>Autorizzazione Animali Vivi:</strong> 
+                            {% if vettore.autorizzazione_animali_vivi %}
+                                <span class="badge bg-success">Sì</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Autisti:</strong> {{ autisti.count }} autista{{ autisti.count|pluralize }}</p>
+                        <p><strong>Targhe:</strong> {{ targhe.count }} targa{{ targhe.count|pluralize }}</p>
                     </div>
                 </div>
                 <div class="row mt-3">
@@ -64,6 +68,71 @@
                 <div class="mt-3">
                     <p><strong>DDT associati:</strong> {{ vettore.ddt_set.count }} DDT</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Autisti -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Autisti ({{ autisti.count }})</h5>
+                <a href="{% url 'ddt_app:autista_create' vettore.id %}" class="btn btn-primary btn-sm">
+                    Nuovo Autista
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if autisti %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">Nome</th>
+                                    <th style="width: 25%;">Cognome</th>
+                                    <th style="width: 20%;">Patente</th>
+                                    <th style="width: 10%;">Stato</th>
+                                    <th style="width: 20%;">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for autista in autisti %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ autista.nome }}</strong>
+                                    </td>
+                                    <td>{{ autista.cognome }}</td>
+                                    <td>{{ autista.patente|default:"-" }}</td>
+                                    <td>
+                                        {% if autista.attivo %}
+                                            <span class="badge bg-success">Attivo</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inattivo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="#" 
+                                               class="btn btn-outline-warning btn-sm" title="Modifica">
+                                                Mod
+                                            </a>
+                                            <a href="#" 
+                                               class="btn btn-outline-danger btn-sm" title="Elimina">
+                                                Del
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <h4 class="text-muted">Nessun autista configurato</h4>
+                        <p class="text-muted">Aggiungi un autista per questo vettore</p>
+                        <a href="{% url 'ddt_app:autista_create' vettore.id %}" class="btn btn-primary">
+                            Aggiungi Autista
+                        </a>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
