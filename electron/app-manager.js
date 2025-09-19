@@ -22,6 +22,7 @@ class AppManager {
         
         this.mainWindow = null;
         this.isQuitting = false;
+        this.ipcHandlersSetup = false;
         
         this.setupAppEvents();
         this.setupIpcHandlers();
@@ -51,19 +52,13 @@ class AppManager {
     }
     
     setupIpcHandlers() {
-        // Rimuovi gestori esistenti per evitare duplicati
-        ipcMain.removeAllListeners('window-minimize');
-        ipcMain.removeAllListeners('window-maximize');
-        ipcMain.removeAllListeners('window-close');
-        ipcMain.removeAllListeners('settings-get');
-        ipcMain.removeAllListeners('settings-set');
-        ipcMain.removeAllListeners('backup-create');
-        ipcMain.removeAllListeners('backup-restore');
-        ipcMain.removeAllListeners('updater-check');
-        ipcMain.removeAllListeners('updater-download');
-        ipcMain.removeAllListeners('updater-install');
-        ipcMain.removeAllListeners('performance-get');
-        ipcMain.removeAllListeners('notification-show');
+        // Evita di registrare i gestori più volte
+        if (this.ipcHandlersSetup) {
+            return;
+        }
+        
+        // Rimuovi tutti i gestori esistenti per evitare duplicati
+        ipcMain.removeAllListeners();
         
         // Gestione finestra
         ipcMain.handle('window-minimize', () => {
@@ -157,6 +152,9 @@ class AppManager {
                     break;
             }
         });
+        
+        // Marca i gestori come configurati
+        this.ipcHandlersSetup = true;
     }
     
     async onAppReady() {
