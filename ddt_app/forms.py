@@ -250,7 +250,7 @@ class VettoreForm(forms.ModelForm):
     
     class Meta:
         model = Vettore
-        fields = ['nome', 'indirizzo', 'cap', 'citta', 'provincia', 'piva', 'cf', 'telefono', 'email', 'autista', 'patente', 'licenza_bdn', 'note']
+        fields = ['nome', 'indirizzo', 'cap', 'citta', 'provincia', 'piva', 'cf', 'telefono', 'email', 'note']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
             'indirizzo': forms.TextInput(attrs={'class': 'form-control'}),
@@ -261,9 +261,6 @@ class VettoreForm(forms.ModelForm):
             'cf': forms.TextInput(attrs={'class': 'form-control', 'maxlength': '16', 'style': 'text-transform: uppercase'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'autista': forms.TextInput(attrs={'class': 'form-control'}),
-            'patente': forms.TextInput(attrs={'class': 'form-control'}),
-            'licenza_bdn': forms.TextInput(attrs={'class': 'form-control'}),
             'note': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 

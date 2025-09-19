@@ -531,6 +531,42 @@ def mittente_create(request):
     return render(request, 'ddt_app/mittente_form.html', context)
 
 
+def destinatario_create(request):
+    """Crea nuovo destinatario"""
+    if request.method == 'POST':
+        form = DestinatarioForm(request.POST)
+        if form.is_valid():
+            destinatario = form.save()
+            messages.success(request, f'Destinatario "{destinatario.nome}" creato con successo!')
+            return redirect('ddt_app:destinatario_detail', destinatario_id=destinatario.id)
+    else:
+        form = DestinatarioForm()
+    
+    context = {
+        'form': form,
+        'title': 'Nuovo Destinatario',
+    }
+    return render(request, 'ddt_app/destinatario_form.html', context)
+
+
+def vettore_create(request):
+    """Crea nuovo vettore"""
+    if request.method == 'POST':
+        form = VettoreForm(request.POST)
+        if form.is_valid():
+            vettore = form.save()
+            messages.success(request, f'Vettore "{vettore.nome}" creato con successo!')
+            return redirect('ddt_app:vettore_detail', vettore_id=vettore.id)
+    else:
+        form = VettoreForm()
+    
+    context = {
+        'form': form,
+        'title': 'Nuovo Vettore',
+    }
+    return render(request, 'ddt_app/vettore_form.html', context)
+
+
 def mittente_detail(request, mittente_id):
     """Dettaglio mittente con sedi"""
     mittente = get_object_or_404(Mittente, id=mittente_id)
