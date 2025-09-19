@@ -51,15 +51,17 @@ jobs:
         python manage.py migrate
         python manage.py collectstatic --noinput
         
-    - name: Build Electron app
-      run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          npm run build-win -- --publish never
-        elif [ "$RUNNER_OS" == "macOS" ]; then
-          npm run build-mac -- --publish never
-        else
-          npm run build-linux -- --publish never
-        fi
+    - name: Build Electron app (Windows)
+      if: runner.os == 'Windows'
+      run: npm run build-win -- --publish never
+      
+    - name: Build Electron app (macOS)
+      if: runner.os == 'macOS'
+      run: npm run build-mac -- --publish never
+      
+    - name: Build Electron app (Linux)
+      if: runner.os == 'Linux'
+      run: npm run build-linux -- --publish never
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
