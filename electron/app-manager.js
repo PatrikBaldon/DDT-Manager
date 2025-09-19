@@ -58,16 +58,20 @@ class AppManager {
         }
         
         // Rimuovi tutti i gestori esistenti per evitare duplicati
-        ipcMain.removeAllListeners();
+        try {
+            ipcMain.removeAllListeners();
+        } catch (error) {
+            console.log('Nessun listener da rimuovere');
+        }
         
         // Gestione finestra
-        ipcMain.handle('window-minimize', () => {
+        this.registerIpcHandler('window-minimize', () => {
             if (this.mainWindow) {
                 this.mainWindow.minimize();
             }
         });
         
-        ipcMain.handle('window-maximize', () => {
+        this.registerIpcHandler('window-maximize', () => {
             if (this.mainWindow) {
                 if (this.mainWindow.isMaximized()) {
                     this.mainWindow.unmaximize();
@@ -77,61 +81,61 @@ class AppManager {
             }
         });
         
-        ipcMain.handle('window-close', () => {
+        this.registerIpcHandler('window-close', () => {
             if (this.mainWindow) {
                 this.mainWindow.close();
             }
         });
         
         // Gestione impostazioni
-        ipcMain.handle('settings-get', (event, key) => {
+        this.registerIpcHandler('settings-get', (event, key) => {
             return this.settings.get(key);
         });
         
-        ipcMain.handle('settings-set', (event, key, value) => {
+        this.registerIpcHandler('settings-set', (event, key, value) => {
             this.settings.set(key, value);
             this.logger.settingsChanged(key, value);
             return true;
         });
         
         // Gestione backup
-        ipcMain.handle('backup-create', () => {
+        this.registerIpcHandler('backup-create', () => {
             return this.backup.createBackup();
         });
         
-        ipcMain.handle('backup-list', () => {
+        this.registerIpcHandler('backup-list', () => {
             return this.backup.listBackups();
         });
         
-        ipcMain.handle('backup-restore', (event, backupFile) => {
+        this.registerIpcHandler('backup-restore', (event, backupFile) => {
             return this.backup.restoreBackup(backupFile);
         });
         
         // Gestione performance
-        ipcMain.handle('performance-get-metrics', () => {
+        this.registerIpcHandler('performance-get-metrics', () => {
             return this.performance.getMetrics();
         });
         
-        ipcMain.handle('performance-get-report', () => {
+        this.registerIpcHandler('performance-get-report', () => {
             return this.performance.getPerformanceReport();
         });
         
         // Gestione aggiornamenti
-        ipcMain.handle('updater-check', () => {
+        this.registerIpcHandler('updater-check', () => {
             if (this.updater) {
                 this.updater.checkForUpdates();
             }
             return true;
         });
         
-        ipcMain.handle('updater-download', () => {
+        this.registerIpcHandler('updater-download', () => {
             if (this.updater) {
                 this.updater.downloadUpdateManually();
             }
             return true;
         });
         
-        ipcMain.handle('updater-install', () => {
+        this.registerIpcHandler('updater-install', () => {
             if (this.updater) {
                 this.updater.installUpdateManually();
             }
@@ -139,7 +143,7 @@ class AppManager {
         });
         
         // Gestione notifiche
-        ipcMain.handle('notifications-show', (event, type, message) => {
+        this.registerIpcHandler('notifications-show', (event, type, message) => {
             switch (type) {
                 case 'info':
                     this.notifications.showInfo(message);
@@ -155,6 +159,17 @@ class AppManager {
         
         // Marca i gestori come configurati
         this.ipcHandlersSetup = true;
+    }
+    
+    registerIpcHandler(channel, handler) {
+        try {
+            // Rimuovi handler esistente se presente
+            ipcMain.removeHandler(channel);
+            // Registra il nuovo handler
+            ipcMain.handle(channel, handler);
+        } catch (error) {
+            console.log(`Errore registrazione handler ${channel}:`, error.message);
+        }
     }
     
     async onAppReady() {
