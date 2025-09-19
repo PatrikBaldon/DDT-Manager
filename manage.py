@@ -7,7 +7,7 @@ import sys
 def main():
     """Run administrative tasks."""
     # Usa sempre development per GitHub Actions
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ddt_project.settings')
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

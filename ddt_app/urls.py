@@ -31,6 +31,7 @@ urlpatterns = [
     
     # Gestione Mittenti
     path('mittenti/', views.mittente_list, name='mittente_list'),
+    path('mittenti/create/', views.mittente_create, name='mittente_create'),
     path('mittenti/<int:mittente_id>/', views.mittente_detail, name='mittente_detail'),
     path('mittenti/<int:mittente_id>/edit/', views.mittente_edit, name='mittente_edit'),
     path('mittenti/<int:mittente_id>/delete/', views.mittente_delete, name='mittente_delete'),

@@ -8,7 +8,7 @@
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="text-gradient">Mittenti</h1>
-            <a href="/admin/ddt_app/mittente/add/" class="btn btn-primary">
+            <a href="{% url 'ddt_app:mittente_create' %}" class="btn btn-primary">
                 Nuovo Mittente
             </a>
         </div>
@@ -150,7 +150,7 @@
                             {% endif %}
                         </p>
                         {% if not search %}
-                            <a href="/admin/ddt_app/mittente/add/" class="btn btn-primary">
+                            <a href="{% url 'ddt_app:mittente_create' %}" class="btn btn-primary">
                                 Crea il primo mittente
                             </a>
                         {% endif %}

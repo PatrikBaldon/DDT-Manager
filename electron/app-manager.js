@@ -208,7 +208,7 @@ class AppManager {
             y: windowState.y,
             minWidth: 800,
             minHeight: 600,
-            show: false,
+            show: true,
             titleBarStyle: 'default',
             webPreferences: {
                 nodeIntegration: false,
@@ -219,11 +219,19 @@ class AppManager {
         });
         
         // Carica l'applicazione Django
-        await this.loadDjangoApp();
+        try {
+            await this.loadDjangoApp();
+        } catch (error) {
+            console.error('Errore nel caricamento di Django:', error);
+            // Mostra la finestra anche se Django non si carica
+            this.mainWindow.show();
+            this.mainWindow.focus();
+        }
         
         // Gestisci eventi della finestra
         this.mainWindow.on('ready-to-show', () => {
             this.mainWindow.show();
+            this.mainWindow.focus();
             this.performance.recordStartupComplete();
         });
         
@@ -252,8 +260,16 @@ class AppManager {
     
     async loadDjangoApp() {
         try {
-            // Avvia il server Django
-            await this.startDjangoServer();
+            // Verifica se Django è già in esecuzione
+            const isDjangoRunning = await this.checkDjangoServer();
+            
+            if (!isDjangoRunning) {
+                // Avvia il server Django
+                await this.startDjangoServer();
+            }
+            
+            // Attendi che Django sia pronto
+            await this.waitForDjangoServer();
             
             // Carica l'applicazione
             const djangoUrl = 'http://localhost:8000';
@@ -265,31 +281,88 @@ class AppManager {
             this.errorHandler.handleDjangoError(error);
             
             // Mostra pagina di errore invece di chiudere l'app
-            await this.mainWindow.loadURL('data:text/html,<html><body><h1>Errore Django</h1><p>Impossibile avviare il server Django. Controlla i log per maggiori dettagli.</p><p>Errore: ' + error.message + '</p></body></html>');
+            await this.mainWindow.loadURL('data:text/html,<html><body><h1>Errore Django</h1><p>Impossibile connettersi al server Django. Controlla i log per maggiori dettagli.</p><p>Errore: ' + error.message + '</p></body></html>');
         }
     }
     
-    async startDjangoServer() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                // Inizializza le dipendenze
-                const deps = await this.dependencyManager.initialize();
-                
-                if (!deps.allOk) {
-                    throw new Error(`Dipendenze mancanti: Python=${deps.python}, Django=${deps.djangoOk}, Node=${deps.node}, npm=${deps.npmOk}`);
-                }
-                
-                const { spawn } = require('child_process');
-                const managePyPath = path.join(__dirname, '..', 'manage.py');
-                
-                console.log('Avvio Django con Python:', deps.python);
-                console.log('Percorso manage.py:', managePyPath);
-                console.log('Directory di lavoro:', path.join(__dirname, '..'));
-                
-                const djangoProcess = spawn(deps.python, [managePyPath, 'runserver', '--noreload'], {
-                    cwd: path.join(__dirname, '..'),
-                    stdio: 'pipe'
+    async checkDjangoServer() {
+        return new Promise((resolve) => {
+            const http = require('http');
+            const req = http.get('http://localhost:8000', (res) => {
+                resolve(true);
+            });
+            req.on('error', () => {
+                resolve(false);
+            });
+            req.setTimeout(1000, () => {
+                req.destroy();
+                resolve(false);
+            });
+        });
+    }
+    
+    async waitForDjangoServer() {
+        return new Promise((resolve, reject) => {
+            const maxAttempts = 30; // 30 secondi
+            let attempts = 0;
+            
+            const checkServer = () => {
+                attempts++;
+                this.checkDjangoServer().then(isRunning => {
+                    if (isRunning) {
+                        resolve();
+                    } else if (attempts >= maxAttempts) {
+                        reject(new Error('Timeout: Django server non risponde'));
+                    } else {
+                        setTimeout(checkServer, 1000);
+                    }
                 });
+            };
+            
+            checkServer();
+        });
+    }
+    
+            async startDjangoServer() {
+                return new Promise(async (resolve, reject) => {
+                    try {
+                        // Inizializza le dipendenze
+                        const deps = await this.dependencyManager.initialize();
+                        
+                        if (!deps.allOk) {
+                            throw new Error(`Dipendenze mancanti: Python=${deps.python}, Django=${deps.djangoOk}, Node=${deps.node}, npm=${deps.npmOk}`);
+                        }
+                        
+                        const { spawn } = require('child_process');
+                        const fs = require('fs');
+                        const os = require('os');
+                        
+                        // Crea directory per Django nell'home directory
+                        const djangoDir = path.join(os.homedir(), '.ddt-manager', 'django');
+                        if (!fs.existsSync(djangoDir)) {
+                            fs.mkdirSync(djangoDir, { recursive: true });
+                        }
+                        
+                        // Copia i file Django necessari
+                        await this.copyDjangoFiles(djangoDir);
+                        
+                        const managePyPath = path.join(djangoDir, 'manage.py');
+                        
+                        console.log('Avvio Django con Python:', deps.python);
+                        console.log('Percorso manage.py:', managePyPath);
+                        console.log('Directory di lavoro:', djangoDir);
+                        
+                        // Aggiungi il percorso Django al PYTHONPATH
+                        const env = { ...process.env };
+                        env.PYTHONPATH = djangoDir;
+                        env.DJANGO_SETTINGS_MODULE = 'config.settings.development';
+                        
+                        const djangoProcess = spawn(deps.python, [managePyPath, 'runserver', '--noreload'], {
+                            cwd: djangoDir,
+                            stdio: 'pipe',
+                            detached: true, // Processo separato
+                            env: env
+                        });
                 
                 djangoProcess.stdout.on('data', (data) => {
                     const output = data.toString();
@@ -321,18 +394,80 @@ class AppManager {
         });
     }
     
-    saveWindowState() {
-        if (this.mainWindow) {
-            const bounds = this.mainWindow.getBounds();
-            const isMaximized = this.mainWindow.isMaximized();
+    async copyDjangoFiles(djangoDir) {
+        const fs = require('fs');
+        const path = require('path');
+        
+        // Lista dei file e cartelle da copiare
+        const filesToCopy = [
+            'manage.py',
+            'requirements.txt',
+            'db.sqlite3',
+            'ddt_app',
+            'ddt_project', 
+            'config',
+            'templates',
+            'static'
+        ];
+        
+        for (const item of filesToCopy) {
+            const sourcePath = path.join(__dirname, '..', item);
+            const destPath = path.join(djangoDir, item);
             
-            this.settings.setWindowState({
-                width: bounds.width,
-                height: bounds.height,
-                x: bounds.x,
-                y: bounds.y,
-                maximized: isMaximized
-            });
+            try {
+                if (fs.existsSync(sourcePath)) {
+                    if (fs.statSync(sourcePath).isDirectory()) {
+                        // Copia directory ricorsivamente
+                        await this.copyDirectory(sourcePath, destPath);
+                    } else {
+                        // Copia file
+                        fs.copyFileSync(sourcePath, destPath);
+                    }
+                    console.log(`Copiato: ${item}`);
+                }
+            } catch (error) {
+                console.log(`Errore copia ${item}:`, error.message);
+            }
+        }
+    }
+    
+    async copyDirectory(source, dest) {
+        const fs = require('fs');
+        const path = require('path');
+        
+        if (!fs.existsSync(dest)) {
+            fs.mkdirSync(dest, { recursive: true });
+        }
+        
+        const items = fs.readdirSync(source);
+        for (const item of items) {
+            const sourcePath = path.join(source, item);
+            const destPath = path.join(dest, item);
+            
+            if (fs.statSync(sourcePath).isDirectory()) {
+                await this.copyDirectory(sourcePath, destPath);
+            } else {
+                fs.copyFileSync(sourcePath, destPath);
+            }
+        }
+    }
+    
+    saveWindowState() {
+        if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+            try {
+                const bounds = this.mainWindow.getBounds();
+                const isMaximized = this.mainWindow.isMaximized();
+                
+                this.settings.setWindowState({
+                    width: bounds.width,
+                    height: bounds.height,
+                    x: bounds.x,
+                    y: bounds.y,
+                    maximized: isMaximized
+                });
+            } catch (error) {
+                console.log('Window already destroyed, skipping state save');
+            }
         }
     }
     

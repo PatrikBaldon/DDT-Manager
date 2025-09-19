@@ -11,11 +11,6 @@
     "electron/**/*",
     "static/**/*",
     "templates/**/*",
-    "ddt_app/**/*",
-    "ddt_project/**/*",
-    "manage.py",
-    "requirements.txt",
-    "db.sqlite3",
     "!**/__pycache__/**/*",
     "!**/migrations/**/*",
     "!**/tests/**/*",
@@ -29,6 +24,30 @@
     {
       "from": "templates",
       "to": "templates"
+    },
+    {
+      "from": "ddt_app",
+      "to": "ddt_app"
+    },
+    {
+      "from": "ddt_project",
+      "to": "ddt_project"
+    },
+    {
+      "from": "config",
+      "to": "config"
+    },
+    {
+      "from": "manage.py",
+      "to": "manage.py"
+    },
+    {
+      "from": "requirements.txt",
+      "to": "requirements.txt"
+    },
+    {
+      "from": "db.sqlite3",
+      "to": "db.sqlite3"
     }
   ],
   "win": {

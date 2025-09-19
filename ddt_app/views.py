@@ -513,6 +513,24 @@ def mittente_list(request):
     return render(request, 'ddt_app/mittente_list.html', context)
 
 
+def mittente_create(request):
+    """Crea nuovo mittente"""
+    if request.method == 'POST':
+        form = MittenteForm(request.POST)
+        if form.is_valid():
+            mittente = form.save()
+            messages.success(request, f'Mittente "{mittente.nome}" creato con successo!')
+            return redirect('ddt_app:mittente_detail', mittente_id=mittente.id)
+    else:
+        form = MittenteForm()
+    
+    context = {
+        'form': form,
+        'title': 'Nuovo Mittente',
+    }
+    return render(request, 'ddt_app/mittente_form.html', context)
+
+
 def mittente_detail(request, mittente_id):
     """Dettaglio mittente con sedi"""
     mittente = get_object_or_404(Mittente, id=mittente_id)
