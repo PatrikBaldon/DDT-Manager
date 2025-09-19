@@ -7,6 +7,7 @@ const ErrorHandler = require('./error-handler');
 const PerformanceMonitor = require('./performance-monitor');
 const NotificationManager = require('./notifications');
 const Updater = require('./updater');
+const DependencyManager = require('./dependency-manager');
 
 class AppManager {
     constructor() {
@@ -17,6 +18,7 @@ class AppManager {
         this.performance = new PerformanceMonitor(this.logger);
         this.notifications = new NotificationManager();
         this.updater = null;
+        this.dependencyManager = new DependencyManager();
         
         this.mainWindow = null;
         this.isQuitting = false;
@@ -234,42 +236,61 @@ class AppManager {
             
         } catch (error) {
             this.errorHandler.handleDjangoError(error);
-            throw error;
+            
+            // Mostra pagina di errore invece di chiudere l'app
+            await this.mainWindow.loadURL('data:text/html,<html><body><h1>Errore Django</h1><p>Impossibile avviare il server Django. Controlla i log per maggiori dettagli.</p><p>Errore: ' + error.message + '</p></body></html>');
         }
     }
     
     async startDjangoServer() {
-        return new Promise((resolve, reject) => {
-            const { spawn } = require('child_process');
-            const pythonPath = process.platform === 'win32' ? 'python' : 'python3';
-            const managePyPath = path.join(__dirname, '..', 'manage.py');
-            
-            const djangoProcess = spawn(pythonPath, [managePyPath, 'runserver', '--noreload'], {
-                cwd: path.join(__dirname, '..'),
-                stdio: 'pipe'
-            });
-            
-            djangoProcess.stdout.on('data', (data) => {
-                const output = data.toString();
-                console.log('Django:', output);
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Inizializza le dipendenze
+                const deps = await this.dependencyManager.initialize();
                 
-                if (output.includes('Starting development server') || output.includes('Quit the server with')) {
-                    resolve();
+                if (!deps.allOk) {
+                    throw new Error(`Dipendenze mancanti: Python=${deps.python}, Django=${deps.djangoOk}, Node=${deps.node}, npm=${deps.npmOk}`);
                 }
-            });
-            
-            djangoProcess.stderr.on('data', (data) => {
-                console.error('Django Error:', data.toString());
-            });
-            
-            djangoProcess.on('error', (error) => {
+                
+                const { spawn } = require('child_process');
+                const managePyPath = path.join(__dirname, '..', 'manage.py');
+                
+                console.log('Avvio Django con Python:', deps.python);
+                console.log('Percorso manage.py:', managePyPath);
+                console.log('Directory di lavoro:', path.join(__dirname, '..'));
+                
+                const djangoProcess = spawn(deps.python, [managePyPath, 'runserver', '--noreload'], {
+                    cwd: path.join(__dirname, '..'),
+                    stdio: 'pipe'
+                });
+                
+                djangoProcess.stdout.on('data', (data) => {
+                    const output = data.toString();
+                    console.log('Django:', output);
+                    
+                    if (output.includes('Starting development server') || output.includes('Quit the server with')) {
+                        resolve();
+                    }
+                });
+                
+                djangoProcess.stderr.on('data', (data) => {
+                    console.error('Django Error:', data.toString());
+                });
+                
+                djangoProcess.on('error', (error) => {
+                    console.error('Errore avvio Django:', error);
+                    reject(error);
+                });
+                
+                // Timeout per l'avvio
+                setTimeout(() => {
+                    resolve();
+                }, 5000);
+                
+            } catch (error) {
+                console.error('Errore inizializzazione dipendenze:', error);
                 reject(error);
-            });
-            
-            // Timeout per l'avvio
-            setTimeout(() => {
-                resolve();
-            }, 5000);
+            }
         });
     }
     
