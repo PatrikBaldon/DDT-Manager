@@ -180,9 +180,11 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          dist/windows/*
-          dist/macos/*
-          dist/linux/*
+          dist/windows/*.exe
+          dist/windows/*.exe.blockmap
+          dist/macos/*.dmg
+          dist/macos/*.dmg.blockmap
+          dist/linux/*.AppImage
         body: |
           ## DDT Manager v${{ github.ref_name }}
           
