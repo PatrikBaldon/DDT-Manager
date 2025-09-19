@@ -103,7 +103,7 @@
   },
   "dmg": {
     "title": "DDT Manager",
-    "background": "static/images/logo1.png",
+    "background": "static/images/App_logo.png",
     "window": {
       "width": 540,
       "height": 380

@@ -26,6 +26,9 @@
   ],
   "author": "Azienda Agricola BB&F",
   "license": "MIT",
+  "build": {
+    "icon": "static/images/icons/icon-512x512.png"
+  },
   "devDependencies": {
     "electron": "^28.0.0",
     "electron-builder": "^24.6.4",
