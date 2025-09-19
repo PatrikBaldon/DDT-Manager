@@ -93,7 +93,7 @@ jobs:
     - name: Download Linux artifacts
       uses: actions/download-artifact@v4
       with:
-        name: ddt-manager-Ubuntu
+        name: ddt-manager-Linux
         path: dist/linux/
         
     - name: Create Release
