@@ -1,0 +1,143 @@
+name: Build DDT Manager
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Create logs directory
+      run: mkdir -p logs
+      
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Install Node.js dependencies
+      run: npm install
+      
+    - name: Setup Django
+      run: |
+        python manage.py migrate
+        python manage.py collectstatic --noinput
+        
+    - name: Build Electron app
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          npm run build-win -- --publish never
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          npm run build-mac -- --publish never
+        else
+          npm run build-linux -- --publish never
+        fi
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ddt-manager-${{ runner.os }}
+        path: dist/
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download Windows artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: ddt-manager-Windows
+        path: dist/windows/
+        
+    - name: Download macOS artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: ddt-manager-macOS
+        path: dist/macos/
+        
+    - name: Download Linux artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: ddt-manager-Ubuntu
+        path: dist/linux/
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/windows/*.exe
+          dist/windows/*.exe.blockmap
+          dist/macos/*.dmg
+          dist/macos/*.dmg.blockmap
+          dist/linux/*.AppImage
+        body: |
+          ## DDT Manager v${{ github.ref_name }}
+          
+          ### 🎉 Release Electron Completa
+          
+          Applicazione Electron per la gestione dei Documenti di Trasporto con rilevamento automatico delle dipendenze.
+          
+          ### 📦 Installazione
+          
+          **Windows:**
+          - Scarica `DDT Manager Setup ${{ github.ref_name }}.exe`
+          - Esegui l'installer come amministratore
+          
+          **macOS:**
+          - Scarica `DDT Manager-${{ github.ref_name }}.dmg`
+          - Apri il file DMG e trascina in Applications
+          
+          **Linux:**
+          - Scarica `DDT Manager-${{ github.ref_name }}.AppImage`
+          - Rendi eseguibile: `chmod +x DDT_Manager-${{ github.ref_name }}.AppImage`
+          - Esegui: `./DDT_Manager-${{ github.ref_name }}.AppImage`
+          
+          ### ✨ Caratteristiche
+          
+          - 🔍 **Rilevamento Automatico Python/Node.js**
+          - 🖥️ **Applicazione Desktop** per Windows, macOS, Linux
+          - 📄 **Gestione DDT Completa** con generazione PDF
+          - 🔄 **Aggiornamenti Automatici**
+          - 💾 **Backup Automatico**
+          - 📈 **Monitoraggio Performance**
+          - 🔔 **Notifiche Desktop**
+          - ⚙️ **Gestione Impostazioni**
+          
+          ### 🚀 Sviluppato da
+          
+          **Patrik Baldon** per **Azienda Agricola BB&F**
+        draft: false
+        prerelease: false
