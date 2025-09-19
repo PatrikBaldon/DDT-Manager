@@ -13,7 +13,7 @@ const AppManager = require('./app-manager');
 
 // Configurazione dell'applicazione
 app.setName('DDT Manager');
-app.setVersion('1.1.0');
+app.setVersion('1.0.0');
 
 // Configurazione per la sicurezza
 app.allowRendererProcessReuse = true;
