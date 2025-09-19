@@ -6,6 +6,10 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 env:
   NODE_VERSION: '18'
   PYTHON_VERSION: '3.11'
@@ -172,65 +176,50 @@ jobs:
         name: ddt-manager-linux
         path: dist/linux/
         
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          dist/windows/*
-          dist/macos/*
-          dist/linux/*
-        body: |
-          ## DDT Manager v${{ github.ref_name }}
-          
-          ### 🎉 Prima Release Electron
-          
-          Questa è la prima release dell'applicazione Electron per la gestione dei Documenti di Trasporto.
-          
-          ### 📦 Installazione
-          
-          **Windows:**
-          - Scarica `DDT_Manager_Setup_1.0.0.exe`
-          - Esegui l'installer come amministratore
-          - Segui le istruzioni per installare Python e Node.js se necessario
-          
-          **macOS:**
-          - Scarica `DDT_Manager-1.0.0.dmg`
-          - Apri il file DMG
-          - Trascina l'applicazione in Applications
-          
-          **Linux:**
-          - Scarica `DDT_Manager-1.0.0.AppImage`
-          - Rendi eseguibile: `chmod +x DDT_Manager-1.0.0.AppImage`
-          - Esegui: `./DDT_Manager-1.0.0.AppImage`
-          
-          ### ✨ Caratteristiche
-          
-          - 🖥️ **Applicazione Desktop**: Interfaccia nativa per Windows, macOS e Linux
-          - 📄 **Gestione DDT Completa**: Creazione, modifica e visualizzazione documenti
-          - 📊 **Generazione PDF**: PDF professionali con layout ottimizzato
-          - 🔄 **Aggiornamenti Automatici**: Controllo e installazione aggiornamenti
-          - 💾 **Backup Automatico**: Sistema di backup integrato per i dati
-          - 📈 **Monitoraggio Performance**: Tracciamento delle performance dell'applicazione
-          - 🔔 **Notifiche Desktop**: Sistema di notifiche per l'utente
-          - ⚙️ **Gestione Impostazioni**: Configurazione persistente dell'applicazione
-          
-          ### 🔧 Prerequisiti
-          
-          - Python 3.8+ (installato automaticamente dall'installer)
-          - Node.js 16+ (installato automaticamente dall'installer)
-          - 500MB di spazio su disco
-          - Connessione internet per aggiornamenti
-          
-          ### 🚀 Sviluppato da
-          
-          **Patrik Baldon** per **Azienda Agricola BB&F**
-          
-          ### 📞 Supporto
-          
-          Per supporto tecnico o segnalazione bug, visita:
-          - [GitHub Issues](https://github.com/PatrikBaldon/DDT-Application/issues)
-          - Email: patrik.baldon@aziendaagricola.com
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Create Release
+              uses: softprops/action-gh-release@v1
+              with:
+                files: |
+                  dist/windows/*
+                  dist/macos/*
+                  dist/linux/*
+                body: |
+                  ## DDT Manager v${{ github.ref_name }}
+                  
+                  ### 🎉 Release Electron con Rilevamento Automatico Python
+                  
+                  Questa release include il rilevamento automatico di Python e Node.js per funzionare su qualsiasi sistema.
+                  
+                  ### 📦 Installazione
+                  
+                  **Windows:**
+                  - Scarica `DDT Manager Setup ${{ github.ref_name }}.exe`
+                  - Esegui l'installer come amministratore
+                  
+                  **macOS:**
+                  - Scarica `DDT Manager-${{ github.ref_name }}.dmg`
+                  - Apri il file DMG e trascina in Applications
+                  
+                  **Linux:**
+                  - Scarica `DDT Manager-${{ github.ref_name }}.AppImage`
+                  - Rendi eseguibile: `chmod +x DDT_Manager-${{ github.ref_name }}.AppImage`
+                  - Esegui: `./DDT_Manager-${{ github.ref_name }}.AppImage`
+                  
+                  ### ✨ Nuove Caratteristiche
+                  
+                  - 🔍 **Rilevamento Automatico Python**: Funziona con Anaconda, Homebrew, Python standard
+                  - 🔍 **Rilevamento Automatico Node.js**: Supporto per diverse installazioni
+                  - 🖥️ **Applicazione Desktop**: Interfaccia nativa per Windows, macOS e Linux
+                  - 📄 **Gestione DDT Completa**: Creazione, modifica e visualizzazione documenti
+                  - 📊 **Generazione PDF**: PDF professionali con layout ottimizzato
+                  - 🔄 **Aggiornamenti Automatici**: Controllo e installazione aggiornamenti
+                  - 💾 **Backup Automatico**: Sistema di backup integrato per i dati
+                  - 📈 **Monitoraggio Performance**: Tracciamento delle performance dell'applicazione
+                  - 🔔 **Notifiche Desktop**: Sistema di notifiche per l'utente
+                  - ⚙️ **Gestione Impostazioni**: Configurazione persistente dell'applicazione
+                  
+                  ### 🚀 Sviluppato da
+                  
+                  **Patrik Baldon** per **Azienda Agricola BB&F**
+                draft: false
+                prerelease: false

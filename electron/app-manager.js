@@ -51,6 +51,20 @@ class AppManager {
     }
     
     setupIpcHandlers() {
+        // Rimuovi gestori esistenti per evitare duplicati
+        ipcMain.removeAllListeners('window-minimize');
+        ipcMain.removeAllListeners('window-maximize');
+        ipcMain.removeAllListeners('window-close');
+        ipcMain.removeAllListeners('settings-get');
+        ipcMain.removeAllListeners('settings-set');
+        ipcMain.removeAllListeners('backup-create');
+        ipcMain.removeAllListeners('backup-restore');
+        ipcMain.removeAllListeners('updater-check');
+        ipcMain.removeAllListeners('updater-download');
+        ipcMain.removeAllListeners('updater-install');
+        ipcMain.removeAllListeners('performance-get');
+        ipcMain.removeAllListeners('notification-show');
+        
         // Gestione finestra
         ipcMain.handle('window-minimize', () => {
             if (this.mainWindow) {
