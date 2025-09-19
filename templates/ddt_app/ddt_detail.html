@@ -57,12 +57,26 @@
                     </div>
                     <div class="card-body">
                         <h6>{{ ddt.mittente.nome }}</h6>
-                        <p class="mb-1">{{ ddt.mittente.indirizzo }}</p>
-                        <p class="mb-1">{{ ddt.mittente.cap }} {{ ddt.mittente.citta }} ({{ ddt.mittente.provincia }})</p>
-                        <p class="mb-1"><strong>P.IVA:</strong> {{ ddt.mittente.piva }}</p>
-                        <p class="mb-1"><strong>CF:</strong> {{ ddt.mittente.cf }}</p>
-                        <p class="mb-1"><strong>Tel:</strong> {{ ddt.mittente.telefono }}</p>
-                        <p class="mb-0"><strong>Email:</strong> {{ ddt.mittente.email }}</p>
+                        {% if ddt.sede_mittente %}
+                            <p class="mb-1"><strong>Sede:</strong> {{ ddt.sede_mittente.nome }}</p>
+                            <p class="mb-1">{{ ddt.sede_mittente.indirizzo }}</p>
+                            <p class="mb-1">{{ ddt.sede_mittente.cap }} {{ ddt.sede_mittente.citta }} ({{ ddt.sede_mittente.provincia }})</p>
+                            {% if ddt.sede_mittente.codice_stalla %}
+                                <p class="mb-1"><strong>Codice Stalla:</strong> {{ ddt.sede_mittente.codice_stalla }}</p>
+                            {% endif %}
+                        {% endif %}
+                        {% if ddt.mittente.piva %}
+                            <p class="mb-1"><strong>P.IVA:</strong> {{ ddt.mittente.piva }}</p>
+                        {% endif %}
+                        {% if ddt.mittente.cf %}
+                            <p class="mb-1"><strong>CF:</strong> {{ ddt.mittente.cf }}</p>
+                        {% endif %}
+                        {% if ddt.mittente.telefono %}
+                            <p class="mb-1"><strong>Tel:</strong> {{ ddt.mittente.telefono }}</p>
+                        {% endif %}
+                        {% if ddt.mittente.email %}
+                            <p class="mb-0"><strong>Email:</strong> {{ ddt.mittente.email }}</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -73,12 +87,28 @@
                     </div>
                     <div class="card-body">
                         <h6>{{ ddt.destinatario.nome }}</h6>
-                        <p class="mb-1">{{ ddt.destinatario.indirizzo }}</p>
-                        <p class="mb-1">{{ ddt.destinatario.cap }} {{ ddt.destinatario.citta }} ({{ ddt.destinatario.provincia }})</p>
-                        <p class="mb-1"><strong>P.IVA:</strong> {{ ddt.destinatario.piva }}</p>
-                        <p class="mb-1"><strong>CF:</strong> {{ ddt.destinatario.cf }}</p>
-                        <p class="mb-1"><strong>Tel:</strong> {{ ddt.destinatario.telefono }}</p>
-                        <p class="mb-0"><strong>Email:</strong> {{ ddt.destinatario.email }}</p>
+                        {% if ddt.destinatario.indirizzo %}
+                            <p class="mb-1">{{ ddt.destinatario.indirizzo }}</p>
+                        {% endif %}
+                        {% if ddt.destinatario.cap or ddt.destinatario.citta or ddt.destinatario.provincia %}
+                            <p class="mb-1">
+                                {% if ddt.destinatario.cap %}{{ ddt.destinatario.cap }}{% endif %}
+                                {% if ddt.destinatario.citta %} {{ ddt.destinatario.citta }}{% endif %}
+                                {% if ddt.destinatario.provincia %} ({{ ddt.destinatario.provincia }}){% endif %}
+                            </p>
+                        {% endif %}
+                        {% if ddt.destinatario.piva %}
+                            <p class="mb-1"><strong>P.IVA:</strong> {{ ddt.destinatario.piva }}</p>
+                        {% endif %}
+                        {% if ddt.destinatario.cf %}
+                            <p class="mb-1"><strong>CF:</strong> {{ ddt.destinatario.cf }}</p>
+                        {% endif %}
+                        {% if ddt.destinatario.telefono %}
+                            <p class="mb-1"><strong>Tel:</strong> {{ ddt.destinatario.telefono }}</p>
+                        {% endif %}
+                        {% if ddt.destinatario.email %}
+                            <p class="mb-0"><strong>Email:</strong> {{ ddt.destinatario.email }}</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -124,10 +154,24 @@
                                 </p>
                                 {% if ddt.trasporto_mezzo == 'vettore' and ddt.vettore %}
                                     <p class="mb-2"><strong>Vettore:</strong> {{ ddt.vettore.nome }}</p>
-                                    <p class="mb-1"><strong>Autista:</strong> {{ ddt.vettore.autista }}</p>
+                                    {% if ddt.autista %}
+                                        <p class="mb-1"><strong>Autista:</strong> {{ ddt.autista.nome }} {{ ddt.autista.cognome }}</p>
+                                        {% if ddt.autista.patente %}
+                                            <p class="mb-1"><strong>Patente:</strong> {{ ddt.autista.patente }}</p>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if ddt.targa_vettore %}
+                                        <p class="mb-1"><strong>Targa 1:</strong> {{ ddt.targa_vettore.targa }}</p>
+                                    {% endif %}
+                                    {% if ddt.targa_vettore_2 %}
+                                        <p class="mb-1"><strong>Targa 2:</strong> {{ ddt.targa_vettore_2.targa }}</p>
+                                    {% endif %}
                                 {% elif ddt.trasporto_mezzo == 'mittente' and ddt.sede_mittente %}
-                                    <p class="mb-2"><strong>Sede:</strong> {{ ddt.sede_mittente.nome }}</p>
+                                    <p class="mb-2"><strong>Trasporto a mezzo:</strong> {{ ddt.sede_mittente.nome }}</p>
                                     <p class="mb-1"><strong>Indirizzo:</strong> {{ ddt.sede_mittente.indirizzo }}</p>
+                                    {% if ddt.sede_mittente.codice_stalla %}
+                                        <p class="mb-1"><strong>Codice Stalla:</strong> {{ ddt.sede_mittente.codice_stalla }}</p>
+                                    {% endif %}
                                 {% elif ddt.trasporto_mezzo == 'destinatario' and ddt.destinazione %}
                                     <p class="mb-2"><strong>Destinazione:</strong> {{ ddt.destinazione.nome }}</p>
                                     <p class="mb-1"><strong>Indirizzo:</strong> {{ ddt.destinazione.indirizzo }}</p>

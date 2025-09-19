@@ -47,6 +47,11 @@ $(document).ready(function() {
         }
     });
     
+    // DDT Form specific functionality
+    if ($('.ddt-form').length > 0) {
+        initDDTForm();
+    }
+    
     // Real-time form validation
     $('input, select, textarea').on('blur', function() {
         if ($(this).prop('required') && !$(this).val()) {
@@ -319,5 +324,439 @@ function showNotification(message, type = 'info') {
             notification.remove();
         });
     }, 3000);
+}
+
+// DDT Form variables
+var ddtForm = null;
+var destinazioniUrl = null;
+var sediMittenteUrl = null;
+var autistiUrl = null;
+var targheUrl = null;
+
+// Gestione filtraggio sedi mittente
+function loadSediMittente(mittenteId) {
+    var sedeMittenteSelect = $('#id_sede_mittente');
+    
+    if (mittenteId) {
+        $.ajax({
+            url: sediMittenteUrl + mittenteId + '/',
+            method: 'GET',
+            success: function(data) {
+                sedeMittenteSelect.empty();
+                sedeMittenteSelect.append('<option value="">Seleziona sede mittente...</option>');
+                
+                data.forEach(function(sede) {
+                    var optionText = sede.nome;
+                    if (sede.codice_stalla) {
+                        optionText += ' (' + sede.codice_stalla + ')';
+                    }
+                    if (sede.sede_legale) {
+                        optionText += ' [Sede Legale]';
+                    }
+                    sedeMittenteSelect.append('<option value="' + sede.id + '">' + optionText + '</option>');
+                });
+            },
+            error: function() {
+                console.error('Errore nel caricamento delle sedi del mittente');
+            }
+        });
+    } else {
+        sedeMittenteSelect.empty();
+        sedeMittenteSelect.append('<option value="">Seleziona prima un mittente</option>');
+    }
+}
+
+// Gestione caricamento autisti e targhe
+function loadAutistiTarghe(vettoreId) {
+    var autistaSelect = $('#id_autista');
+    var targaSelect = $('#id_targa_vettore');
+    var targaSelect2 = $('#id_targa_vettore_2');
+    
+    if (vettoreId) {
+        // Carica autisti
+        $.ajax({
+            url: autistiUrl + vettoreId + '/',
+            method: 'GET',
+            success: function(data) {
+                autistaSelect.empty();
+                autistaSelect.append('<option value="">Seleziona autista...</option>');
+                
+                data.forEach(function(autista) {
+                    var optionText = autista.nome + ' ' + autista.cognome;
+                    if (autista.patente) {
+                        optionText += ' (' + autista.patente + ')';
+                    }
+                    autistaSelect.append('<option value="' + autista.id + '">' + optionText + '</option>');
+                });
+            },
+            error: function() {
+                console.error('Errore nel caricamento degli autisti');
+            }
+        });
+        
+        // Carica targhe per entrambi i campi
+        $.ajax({
+            url: targheUrl + vettoreId + '/',
+            method: 'GET',
+            success: function(data) {
+                // Popola primo campo targa
+                targaSelect.empty();
+                targaSelect.append('<option value="">Seleziona targa 1...</option>');
+                
+                // Popola secondo campo targa
+                targaSelect2.empty();
+                targaSelect2.append('<option value="">Seleziona targa 2...</option>');
+                
+                data.forEach(function(targa) {
+                    var optionText = targa.targa;
+                    if (targa.tipo_veicolo) {
+                        optionText += ' - ' + targa.tipo_veicolo;
+                    }
+                    if (targa.note && targa.note.trim() !== '') {
+                        optionText += ' (' + targa.note + ')';
+                    }
+                    
+                    // Aggiungi a entrambi i select
+                    targaSelect.append('<option value="' + targa.id + '">' + optionText + '</option>');
+                    targaSelect2.append('<option value="' + targa.id + '">' + optionText + '</option>');
+                });
+            },
+            error: function() {
+                console.error('Errore nel caricamento delle targhe');
+            }
+        });
+    } else {
+        autistaSelect.empty().append('<option value="">Seleziona prima un vettore</option>');
+        targaSelect.empty().append('<option value="">Seleziona prima un vettore</option>');
+        targaSelect2.empty().append('<option value="">Seleziona prima un vettore</option>');
+    }
+}
+
+// Gestione dei valori esistenti per autista e targhe
+function restoreAutistaTargaValues() {
+    var selectedAutista = $('#autista_initial').val();
+    var selectedTarga = $('#targa_vettore_initial').val();
+    var selectedTarga2 = $('#targa_vettore_2_initial').val();
+    
+    console.log('Restoring autista/targhe:', { selectedAutista, selectedTarga, selectedTarga2 });
+    
+    if (selectedAutista) {
+        $('#id_autista').val(selectedAutista);
+        console.log('Set autista to:', selectedAutista);
+    }
+    if (selectedTarga) {
+        $('#id_targa_vettore').val(selectedTarga);
+        console.log('Set targa 1 to:', selectedTarga);
+    }
+    if (selectedTarga2) {
+        $('#id_targa_vettore_2').val(selectedTarga2);
+        console.log('Set targa 2 to:', selectedTarga2);
+    }
+}
+
+// Gestione delle date per la modifica
+function restoreDateValues() {
+    var dataDocumento = $('#data_documento_initial').val();
+    var dataRitiro = $('#data_ritiro_initial').val();
+    
+    console.log('Restoring dates:', { dataDocumento, dataRitiro });
+    
+    if (dataDocumento) {
+        $('#id_data_documento').val(dataDocumento);
+        console.log('Set data documento to:', dataDocumento);
+    }
+    if (dataRitiro) {
+        $('#id_data_ritiro').val(dataRitiro);
+        console.log('Set data ritiro to:', dataRitiro);
+    }
+}
+
+// Gestione della sede mittente
+function restoreSedeMittente() {
+    var selectedSede = $('#sede_mittente_initial').val();
+    console.log('Restoring sede mittente:', selectedSede);
+    
+    if (selectedSede) {
+        $('#id_sede_mittente').val(selectedSede);
+        console.log('Set sede mittente to:', selectedSede);
+    }
+}
+
+// Inizializzazione dei valori esistenti
+function initializeExistingValues() {
+    console.log('Initializing existing values...');
+    
+    // Carica le sedi se c'è già un mittente selezionato
+    var mittenteId = $('#id_mittente').val();
+    console.log('Mittente ID:', mittenteId);
+    if (mittenteId) {
+        loadSediMittente(mittenteId);
+        setTimeout(restoreSedeMittente, 500);
+    }
+    
+    // Carica autisti e targhe se c'è già un vettore selezionato
+    var vettoreId = $('#id_vettore').val();
+    console.log('Vettore ID:', vettoreId);
+    if (vettoreId) {
+        loadAutistiTarghe(vettoreId);
+        $('#autista-targa-fields').show();
+        setTimeout(restoreAutistaTargaValues, 1000);
+    }
+    
+    // Ripristina le date
+    setTimeout(restoreDateValues, 100);
+    
+    // Ripristina la destinazione se esiste
+    var destinazioneId = $('#id_destinazione_id').val();
+    if (destinazioneId) {
+        var destinatarioId = $('#id_destinatario').val();
+        if (destinatarioId) {
+            var url = destinazioniUrl.replace('0', destinatarioId);
+            $.get(url, function(data) {
+                var destinazioneSelect = $('#id_destinazione');
+                destinazioneSelect.empty();
+                destinazioneSelect.append('<option value="">Seleziona destinazione...</option>');
+                $.each(data, function(index, destinazione) {
+                    var optionText = destinazione.nome;
+                    if (destinazione.codice_stalla) {
+                        optionText += ' (' + destinazione.codice_stalla + ')';
+                    }
+                    var isSelected = destinazione.id == destinazioneId;
+                    destinazioneSelect.append('<option value="' + destinazione.id + '" data-indirizzo="' + destinazione.indirizzo + '" data-codice-stalla="' + (destinazione.codice_stalla || '') + '"' + (isSelected ? ' selected' : '') + '">' + optionText + '</option>');
+                });
+                
+                // Se c'è una selezione, aggiorna l'anteprima
+                if (destinazioneId) {
+                    var selectedOption = destinazioneSelect.find('option:selected');
+                    var indirizzo = selectedOption.data('indirizzo');
+                    var codiceStalla = selectedOption.data('codice-stalla');
+                    var nome = selectedOption.text();
+                    
+                    if (indirizzo && nome !== 'Seleziona destinazione...') {
+                        // Rimuovi il codice stalla tra parentesi dal nome se presente
+                        var nomePulito = nome.replace(/\s*\([^)]*\)\s*$/, '').trim();
+                        var luogoDestinazione = nomePulito;
+                        
+                        // Aggiungi sempre il codice stalla se presente
+                        if (codiceStalla) {
+                            luogoDestinazione += '\nCodice Stalla: ' + codiceStalla;
+                        }
+                        luogoDestinazione += '\n' + indirizzo;
+                        $('#luogo-destinazione-preview').html(luogoDestinazione.replace(/\n/g, '<br>'));
+                    }
+                }
+            }).fail(function() {
+                console.error('Errore nel caricamento delle destinazioni');
+            });
+        }
+    }
+}
+
+// DDT Form initialization
+function initDDTForm() {
+    console.log('Initializing DDT Form...');
+    
+    ddtForm = $('.ddt-form');
+    destinazioniUrl = ddtForm.data('destinazioni-url');
+    sediMittenteUrl = ddtForm.data('sedi-mittente-url');
+    autistiUrl = ddtForm.data('autisti-url');
+    targheUrl = ddtForm.data('targhe-url');
+    
+    console.log('URLs loaded:', { destinazioniUrl, sediMittenteUrl, autistiUrl, targheUrl });
+    
+    // Genera numero DDT automatico
+    $('#generate-number').click(function() {
+        var url = $('#generate-number').data('url') || '/api/next-ddt-number/';
+        $.get(url, function(data) {
+            $('#id_numero').val(data.numero);
+        });
+    });
+
+    // Carica destinazioni quando cambia il destinatario
+    $('#id_destinatario').change(function() {
+        var destinatarioId = $(this).val();
+        if (destinatarioId) {
+            var url = destinazioniUrl.replace('0', destinatarioId);
+            $.get(url, function(data) {
+                var destinazioneSelect = $('#id_destinazione');
+                destinazioneSelect.empty();
+                destinazioneSelect.append('<option value="">Seleziona destinazione...</option>');
+                $.each(data, function(index, destinazione) {
+                    var optionText = destinazione.nome;
+                    if (destinazione.codice_stalla) {
+                        optionText += ' (' + destinazione.codice_stalla + ')';
+                    }
+                    destinazioneSelect.append('<option value="' + destinazione.id + '" data-indirizzo="' + destinazione.indirizzo + '" data-codice-stalla="' + (destinazione.codice_stalla || '') + '">' + optionText + '</option>');
+                });
+                
+                // Se c'è un errore di validazione, mantieni la selezione precedente
+                var selectedValue = destinazioneSelect.data('selected-value');
+                if (selectedValue) {
+                    destinazioneSelect.val(selectedValue);
+                }
+            });
+        } else {
+            $('#id_destinazione').empty().append('<option value="">Seleziona destinazione...</option>');
+            $('#id_luogo_destinazione').val('');
+        }
+    });
+    
+    // Mostra anteprima luogo destinazione quando cambia la destinazione
+    $('#id_destinazione').change(function() {
+        var selectedOption = $(this).find('option:selected');
+        var indirizzo = selectedOption.data('indirizzo');
+        var codiceStalla = selectedOption.data('codice-stalla');
+        var nome = selectedOption.text();
+        var selectedValue = $(this).val();
+        
+        // Salva la selezione per il ripristino in caso di errore
+        $(this).data('selected-value', selectedValue);
+        
+        // Popola il campo nascosto destinazione_id
+        $('#id_destinazione_id').val(selectedValue);
+        
+        if (indirizzo && nome !== 'Seleziona destinazione...') {
+            // Rimuovi il codice stalla tra parentesi dal nome se presente
+            var nomePulito = nome.replace(/\s*\([^)]*\)\s*$/, '').trim();
+            var luogoDestinazione = nomePulito;
+            
+            // Aggiungi sempre il codice stalla se presente
+            if (codiceStalla) {
+                luogoDestinazione += '\nCodice Stalla: ' + codiceStalla;
+            }
+            luogoDestinazione += '\n' + indirizzo;
+            
+            // Mostra anteprima
+            $('#luogo-destinazione-preview').html(luogoDestinazione.replace(/\n/g, '<br>'));
+            
+            // Popola il campo nascosto per il salvataggio
+            $('#id_luogo_destinazione').val(luogoDestinazione);
+        } else {
+            $('#luogo-destinazione-preview').html('<em class="text-muted">Seleziona una destinazione per vedere l\'anteprima...</em>');
+            $('#id_luogo_destinazione').val('');
+            $('#id_destinazione_id').val('');
+        }
+    });
+
+    // Gestione aggiunta/rimozione righe
+    $('#add-riga').click(function() {
+        var formCount = parseInt($('#id_form-TOTAL_FORMS').val());
+        var templateForm = $('.riga-form:first');
+        
+        if (templateForm.length === 0) {
+            alert('Errore: Template form non trovato');
+            return;
+        }
+        
+        var newForm = templateForm.clone();
+        
+        // Aggiorna gli indici
+        newForm.find('input, select').each(function() {
+            var name = $(this).attr('name');
+            if (name) {
+                name = name.replace(/form-\d+/, 'form-' + formCount);
+                $(this).attr('name', name);
+            }
+            
+            var id = $(this).attr('id');
+            if (id) {
+                id = id.replace(/id_form-\d+/, 'id_form-' + formCount);
+                $(this).attr('id', id);
+            }
+        });
+        
+        // Pulisci i valori
+        newForm.find('input[type="text"], input[type="number"], select').val('');
+        newForm.find('input[type="checkbox"]').prop('checked', false);
+        
+        // Aggiungi pulsante elimina
+        newForm.find('.delete-row').remove();
+        newForm.find('.col-md-1:last').append('<button type="button" class="btn btn-sm btn-outline-danger delete-row" title="Elimina riga">Elimina</button>');
+        
+        // Aggiungi al container
+        $('#righe-container').append(newForm);
+        
+        // Aggiorna il contatore
+        $('#id_form-TOTAL_FORMS').val(formCount + 1);
+    });
+
+    // Gestione eliminazione righe
+    $(document).on('click', '.delete-row', function() {
+        $(this).closest('.riga-form').remove();
+        var formCount = parseInt($('#id_form-TOTAL_FORMS').val());
+        $('#id_form-TOTAL_FORMS').val(formCount - 1);
+    });
+    
+    // Gestione toggle tra righe articoli e note centrali
+    $('input[name="tipo_articoli"]').change(function() {
+        var tipo = $(this).val();
+        
+        if (tipo === 'righe') {
+            $('#righe-container').show();
+            $('#add-riga-container').show();
+            $('#note-centrali-container').hide();
+        } else if (tipo === 'note') {
+            $('#righe-container').hide();
+            $('#add-riga-container').hide();
+            $('#note-centrali-container').show();
+        }
+    });
+    
+    // Gestione toggle per note centrali (checkbox)
+    $('#tipo_note').change(function() {
+        if ($(this).is(':checked')) {
+            $('#righe-container').hide();
+            $('#add-riga-container').hide();
+            $('#note-centrali-container').show();
+        } else {
+            $('#righe-container').show();
+            $('#add-riga-container').show();
+            $('#note-centrali-container').hide();
+        }
+    });
+
+    // Gestione trasporto a mezzo
+    function updateTrasportoFields() {
+        const trasportoMezzo = $('input[name="trasporto_mezzo"]:checked').val();
+        const vettoreField = $('#vettore-field');
+        const autistaTargaFields = $('#autista-targa-fields');
+        
+        console.log('updateTrasportoFields called, trasportoMezzo:', trasportoMezzo);
+        
+        if (trasportoMezzo === 'vettore') {
+            vettoreField.show();
+            vettoreField.find('select').prop('required', true);
+            // Mostra sempre i campi autista e targa quando trasporto_mezzo è 'vettore'
+            autistaTargaFields.show();
+            console.log('Showing autista-targa-fields for vettore');
+        } else {
+            vettoreField.hide();
+            vettoreField.find('select').prop('required', false);
+            autistaTargaFields.hide();
+            console.log('Hiding autista-targa-fields for non-vettore');
+        }
+    }
+
+    // Inizializza i campi al caricamento
+    updateTrasportoFields();
+
+    // Aggiorna i campi quando cambia la selezione
+    $('input[name="trasporto_mezzo"]').change(function() {
+        updateTrasportoFields();
+    });
+    
+    // Inizializza il toggle in base al contenuto esistente
+    if ($('#id_note_centrali').val().trim() !== '') {
+        $('#tipo_note').prop('checked', true).trigger('change');
+    }
+    
+    // Inizializza l'anteprima del luogo destinazione se già presente
+    if ($('#id_luogo_destinazione').val().trim() !== '') {
+        var luogoDestinazione = $('#id_luogo_destinazione').val();
+        $('#luogo-destinazione-preview').html(luogoDestinazione.replace(/\n/g, '<br>'));
+    }
+    
+    // Inizializza i valori esistenti
+    initializeExistingValues();
 }
 

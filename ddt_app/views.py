@@ -270,7 +270,7 @@ def ddt_pdf(request, ddt_id):
     
     try:
         # Usa il generatore avanzato che supporta le note centrali
-        pdf_path = create_ddt_pdf(ddt_id)
+        pdf_path = generate_ddt_pdf(ddt_id)
         
         with open(pdf_path, 'rb') as pdf_file:
             response = HttpResponse(pdf_file.read(), content_type='application/pdf')
@@ -324,6 +324,47 @@ def get_articoli(request):
             'prezzo_unitario': float(art.prezzo_unitario),
             'note': art.note
         } for art in articoli]
+        
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_autisti(request, vettore_id):
+    """API per ottenere gli autisti di un vettore"""
+    try:
+        vettore = get_object_or_404(Vettore, id=vettore_id)
+        autisti = vettore.autisti.filter(attivo=True)
+        
+        data = [{
+            'id': autista.id,
+            'nome': autista.nome,
+            'cognome': autista.cognome,
+            'patente': autista.patente,
+            'note': autista.note
+        } for autista in autisti]
+        
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_targhe(request, vettore_id):
+    """API per ottenere le targhe di un vettore"""
+    try:
+        vettore = get_object_or_404(Vettore, id=vettore_id)
+        targhe = vettore.targhe.filter(attiva=True)
+        
+        data = [{
+            'id': targa.id,
+            'targa': targa.targa,
+            'tipo_veicolo': targa.tipo_veicolo,
+            'note': targa.note
+        } for targa in targhe]
         
         return JsonResponse(data, safe=False)
     except Exception as e:

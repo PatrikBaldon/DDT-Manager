@@ -40,7 +40,11 @@
             </a>
         </div>
 
-        <form method="post" id="ddt-form">
+        <form method="post" id="ddt-form" class="ddt-form" 
+              data-destinazioni-url="{% url 'ddt_app:get_destinazioni' 0 %}"
+              data-sedi-mittente-url="/api/sedi-mittente/"
+              data-autisti-url="/api/autisti/"
+              data-targhe-url="/api/targhe/">
             {% csrf_token %}
             
             <!-- Informazioni Generali -->
@@ -54,7 +58,8 @@
                             </label>
                             <div class="input-group">
                                 {{ form.numero }}
-                                <button type="button" class="btn btn-outline-secondary" id="generate-number">
+                                <button type="button" class="btn btn-outline-secondary" id="generate-number" data-url="{% url 'ddt_app:next_ddt_number' %}">
+                                    Genera
                                 </button>
                             </div>
                             {% if form.numero.errors %}
@@ -68,6 +73,9 @@
                                 Data Documento <span class="text-danger">*</span>
                             </label>
                             {{ form.data_documento }}
+                            {% if form.data_documento.value %}
+                                <input type="hidden" id="data_documento_initial" value="{{ form.data_documento.value|date:"Y-m-d" }}">
+                            {% endif %}
                             {% if form.data_documento.errors %}
                                 <div class="text-danger">{{ form.data_documento.errors }}</div>
                             {% endif %}
@@ -121,6 +129,9 @@
                                 Sede Mittente
                             </label>
                             {{ form.sede_mittente }}
+                            {% if form.sede_mittente.value %}
+                                <input type="hidden" id="sede_mittente_initial" value="{{ form.sede_mittente.value }}">
+                            {% endif %}
                             {% if form.sede_mittente.errors %}
                                 <div class="text-danger">{{ form.sede_mittente.errors }}</div>
                             {% endif %}
@@ -209,6 +220,9 @@
                                 Data Ritiro <span class="text-danger">*</span>
                             </label>
                             {{ form.data_ritiro }}
+                            {% if form.data_ritiro.value %}
+                                <input type="hidden" id="data_ritiro_initial" value="{{ form.data_ritiro.value|date:"Y-m-d" }}">
+                            {% endif %}
                             {% if form.data_ritiro.errors %}
                                 <div class="text-danger">{{ form.data_ritiro.errors }}</div>
                             {% endif %}
@@ -222,6 +236,52 @@
                             {{ form.vettore }}
                             {% if form.vettore.errors %}
                                 <div class="text-danger">{{ form.vettore.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Campi autista e targhe (visibili solo quando vettore è selezionato) -->
+                <div class="row" id="autista-targa-fields" style="display: none;">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="{{ form.autista.id_for_label }}" class="form-label">
+                                Autista
+                            </label>
+                            {{ form.autista }}
+                            {% if form.autista.value %}
+                                <input type="hidden" id="autista_initial" value="{{ form.autista.value }}">
+                            {% endif %}
+                            {% if form.autista.errors %}
+                                <div class="text-danger">{{ form.autista.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="{{ form.targa_vettore.id_for_label }}" class="form-label">
+                                Targa Veicolo 1
+                            </label>
+                            {{ form.targa_vettore }}
+                            {% if form.targa_vettore.value %}
+                                <input type="hidden" id="targa_vettore_initial" value="{{ form.targa_vettore.value }}">
+                            {% endif %}
+                            {% if form.targa_vettore.errors %}
+                                <div class="text-danger">{{ form.targa_vettore.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="{{ form.targa_vettore_2.id_for_label }}" class="form-label">
+                                Targa Veicolo 2
+                            </label>
+                            {{ form.targa_vettore_2 }}
+                            {% if form.targa_vettore_2.value %}
+                                <input type="hidden" id="targa_vettore_2_initial" value="{{ form.targa_vettore_2.value }}">
+                            {% endif %}
+                            {% if form.targa_vettore_2.errors %}
+                                <div class="text-danger">{{ form.targa_vettore_2.errors }}</div>
                             {% endif %}
                         </div>
                     </div>
@@ -344,260 +404,4 @@
         </form>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-$(document).ready(function() {
-    // Genera numero DDT automatico
-    $('#generate-number').click(function() {
-        $.get('{% url "ddt_app:next_ddt_number" %}', function(data) {
-            $('#id_numero').val(data.numero);
-        });
-    });
-
-    // Carica destinazioni quando cambia il destinatario
-    $('#id_destinatario').change(function() {
-        var destinatarioId = $(this).val();
-        if (destinatarioId) {
-            $.get('{% url "ddt_app:get_destinazioni" 0 %}'.replace('0', destinatarioId), function(data) {
-                var destinazioneSelect = $('#id_destinazione');
-                destinazioneSelect.empty();
-                destinazioneSelect.append('<option value="">Seleziona destinazione...</option>');
-                $.each(data, function(index, destinazione) {
-                    var optionText = destinazione.nome;
-                    if (destinazione.codice_stalla) {
-                        optionText += ' (' + destinazione.codice_stalla + ')';
-                    }
-                    destinazioneSelect.append('<option value="' + destinazione.id + '" data-indirizzo="' + destinazione.indirizzo + '" data-codice-stalla="' + (destinazione.codice_stalla || '') + '">' + optionText + '</option>');
-                });
-                
-                // Se c'è un errore di validazione, mantieni la selezione precedente
-                var selectedValue = destinazioneSelect.data('selected-value');
-                if (selectedValue) {
-                    destinazioneSelect.val(selectedValue);
-                }
-            });
-        } else {
-            $('#id_destinazione').empty().append('<option value="">Seleziona destinazione...</option>');
-            $('#id_luogo_destinazione').val('');
-        }
-    });
-    
-    // Mostra anteprima luogo destinazione quando cambia la destinazione
-    $('#id_destinazione').change(function() {
-        var selectedOption = $(this).find('option:selected');
-        var indirizzo = selectedOption.data('indirizzo');
-        var codiceStalla = selectedOption.data('codice-stalla');
-        var nome = selectedOption.text();
-        var selectedValue = $(this).val();
-        
-        // Salva la selezione per il ripristino in caso di errore
-        $(this).data('selected-value', selectedValue);
-        
-        // Popola il campo nascosto destinazione_id
-        $('#id_destinazione_id').val(selectedValue);
-        
-        if (indirizzo && nome !== 'Seleziona destinazione...') {
-            var luogoDestinazione = nome;
-            if (codiceStalla) {
-                luogoDestinazione += '\nCodice Stalla: ' + codiceStalla;
-            }
-            luogoDestinazione += '\n' + indirizzo;
-            
-            // Mostra anteprima
-            $('#luogo-destinazione-preview').html(luogoDestinazione.replace(/\n/g, '<br>'));
-            
-            // Popola il campo nascosto per il salvataggio
-            $('#id_luogo_destinazione').val(luogoDestinazione);
-        } else {
-            $('#luogo-destinazione-preview').html('<em class="text-muted">Seleziona una destinazione per vedere l\'anteprima...</em>');
-            $('#id_luogo_destinazione').val('');
-            $('#id_destinazione_id').val('');
-        }
-    });
-
-    // Gestione aggiunta/rimozione righe
-    $('#add-riga').click(function() {
-        var formCount = parseInt($('#id_form-TOTAL_FORMS').val());
-        var templateForm = $('.riga-form:first');
-        
-        if (templateForm.length === 0) {
-            alert('Errore: Template form non trovato');
-            return;
-        }
-        
-        var newForm = templateForm.clone();
-        
-        // Aggiorna gli indici
-        newForm.find('input, select').each(function() {
-            var name = $(this).attr('name');
-            if (name) {
-                name = name.replace(/form-\d+/, 'form-' + formCount);
-                $(this).attr('name', name);
-            }
-            
-            var id = $(this).attr('id');
-            if (id) {
-                id = id.replace(/id_form-\d+/, 'id_form-' + formCount);
-                $(this).attr('id', id);
-            }
-        });
-        
-        // Pulisci i valori
-        newForm.find('input[type="text"], input[type="number"], select').val('');
-        newForm.find('input[type="checkbox"]').prop('checked', false);
-        
-        // Aggiungi pulsante elimina
-        newForm.find('.delete-row').remove();
-        newForm.find('.col-md-1:last').append('<button type="button" class="btn btn-sm btn-outline-danger delete-row" title="Elimina riga">Elimina</button>');
-        
-        // Aggiungi al container
-        $('#righe-container').append(newForm);
-        
-        // Aggiorna il contatore
-        $('#id_form-TOTAL_FORMS').val(formCount + 1);
-    });
-
-    // Gestione eliminazione righe
-    $(document).on('click', '.delete-row', function() {
-        $(this).closest('.riga-form').remove();
-        var formCount = parseInt($('#id_form-TOTAL_FORMS').val());
-        $('#id_form-TOTAL_FORMS').val(formCount - 1);
-    });
-    
-    // Gestione toggle tra righe articoli e note centrali
-    $('input[name="tipo_articoli"]').change(function() {
-        var tipo = $(this).val();
-        
-        if (tipo === 'righe') {
-            $('#righe-container').show();
-            $('#add-riga-container').show();
-            $('#note-centrali-container').hide();
-        } else if (tipo === 'note') {
-            $('#righe-container').hide();
-            $('#add-riga-container').hide();
-            $('#note-centrali-container').show();
-        }
-    });
-
-    // Gestione trasporto a mezzo
-    function updateTrasportoFields() {
-        const trasportoMezzo = $('input[name="trasporto_mezzo"]:checked').val();
-        const vettoreField = $('#vettore-field');
-        
-        if (trasportoMezzo === 'vettore') {
-            vettoreField.show();
-            vettoreField.find('select').prop('required', true);
-        } else {
-            vettoreField.hide();
-            vettoreField.find('select').prop('required', false);
-        }
-    }
-
-    // Inizializza i campi al caricamento
-    updateTrasportoFields();
-
-    // Aggiorna i campi quando cambia la selezione
-    $('input[name="trasporto_mezzo"]').change(function() {
-        updateTrasportoFields();
-    });
-    
-    // Inizializza il toggle in base al contenuto esistente
-    if ($('#id_note_centrali').val().trim() !== '') {
-        $('#tipo_note').prop('checked', true).trigger('change');
-    }
-    
-    
-    // Inizializza l'anteprima del luogo destinazione se già presente
-    if ($('#id_luogo_destinazione').val().trim() !== '') {
-        var luogoDestinazione = $('#id_luogo_destinazione').val();
-        $('#luogo-destinazione-preview').html(luogoDestinazione.replace(/\n/g, '<br>'));
-    }
-    
-    
-    // Se c'è un errore di validazione, ripristina la selezione della destinazione
-    var destinazioneId = $('#id_destinazione_id').val();
-    if (destinazioneId) {
-        var destinatarioId = $('#id_destinatario').val();
-        if (destinatarioId) {
-            $.get('{% url "ddt_app:get_destinazioni" 0 %}'.replace('0', destinatarioId), function(data) {
-                var destinazioneSelect = $('#id_destinazione');
-                destinazioneSelect.empty();
-                destinazioneSelect.append('<option value="">Seleziona destinazione...</option>');
-                $.each(data, function(index, destinazione) {
-                    var optionText = destinazione.nome;
-                    if (destinazione.codice_stalla) {
-                        optionText += ' (' + destinazione.codice_stalla + ')';
-                    }
-                    var isSelected = destinazione.id == destinazioneId;
-                    destinazioneSelect.append('<option value="' + destinazione.id + '" data-indirizzo="' + destinazione.indirizzo + '" data-codice-stalla="' + (destinazione.codice_stalla || '') + '"' + (isSelected ? ' selected' : '') + '>' + optionText + '</option>');
-                });
-                
-                // Se c'è una selezione, aggiorna l'anteprima
-                if (destinazioneId) {
-                    var selectedOption = destinazioneSelect.find('option:selected');
-                    var indirizzo = selectedOption.data('indirizzo');
-                    var codiceStalla = selectedOption.data('codice-stalla');
-                    var nome = selectedOption.text();
-                    
-                    if (indirizzo && nome !== 'Seleziona destinazione...') {
-                        var luogoDestinazione = nome;
-                        if (codiceStalla) {
-                            luogoDestinazione += '\nCodice Stalla: ' + codiceStalla;
-                        }
-                        luogoDestinazione += '\n' + indirizzo;
-                        $('#luogo-destinazione-preview').html(luogoDestinazione.replace(/\n/g, '<br>'));
-                    }
-                }
-            });
-        }
-    }
-    
-    // Gestione filtraggio sedi mittente
-    function loadSediMittente(mittenteId) {
-        var sedeMittenteSelect = $('#id_sede_mittente');
-        
-        if (mittenteId) {
-            $.ajax({
-                url: '/api/sedi-mittente/' + mittenteId + '/',
-                method: 'GET',
-                success: function(data) {
-                    sedeMittenteSelect.empty();
-                    sedeMittenteSelect.append('<option value="">Seleziona sede mittente...</option>');
-                    
-                    data.forEach(function(sede) {
-                        var optionText = sede.nome;
-                        if (sede.codice_stalla) {
-                            optionText += ' (' + sede.codice_stalla + ')';
-                        }
-                        if (sede.sede_legale) {
-                            optionText += ' [Sede Legale]';
-                        }
-                        sedeMittenteSelect.append('<option value="' + sede.id + '">' + optionText + '</option>');
-                    });
-                },
-                error: function() {
-                    console.error('Errore nel caricamento delle sedi del mittente');
-                }
-            });
-        } else {
-            sedeMittenteSelect.empty();
-            sedeMittenteSelect.append('<option value="">Seleziona prima un mittente</option>');
-        }
-    }
-    
-    // Event listener per il cambio mittente
-    $('#id_mittente').on('change', function() {
-        var mittenteId = $(this).val();
-        loadSediMittente(mittenteId);
-    });
-    
-    // Carica le sedi se c'è già un mittente selezionato
-    var mittenteId = $('#id_mittente').val();
-    if (mittenteId) {
-        loadSediMittente(mittenteId);
-    }
-});
-</script>
 {% endblock %}

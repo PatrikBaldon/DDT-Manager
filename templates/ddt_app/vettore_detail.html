@@ -49,6 +49,9 @@
                                 <span class="badge bg-secondary">No</span>
                             {% endif %}
                         </p>
+                        {% if vettore.licenza_bdn %}
+                            <p><strong>Licenza BDN:</strong> {{ vettore.licenza_bdn }}</p>
+                        {% endif %}
                         <p><strong>Autisti:</strong> {{ autisti.count }} autista{{ autisti.count|pluralize }}</p>
                         <p><strong>Targhe:</strong> {{ targhe.count }} targa{{ targhe.count|pluralize }}</p>
                     </div>

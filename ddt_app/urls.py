@@ -18,6 +18,8 @@ urlpatterns = [
     path('api/destinazioni/<int:destinatario_id>/', views.get_destinazioni, name='get_destinazioni'),
     path('api/sedi-mittente/<int:mittente_id>/', views.get_sedi_mittente, name='get_sedi_mittente'),
     path('api/articoli/', views.get_articoli, name='get_articoli'),
+    path('api/autisti/<int:vettore_id>/', views.get_autisti, name='get_autisti'),
+    path('api/targhe/<int:vettore_id>/', views.get_targhe, name='get_targhe'),
     path('api/next-ddt-number/', views.generate_next_ddt_number, name='next_ddt_number'),
     path('api/health/', views.health_check, name='health_check'),
     
