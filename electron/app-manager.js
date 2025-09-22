@@ -8,6 +8,7 @@ const PerformanceMonitor = require('./performance-monitor');
 const NotificationManager = require('./notifications');
 const Updater = require('./updater');
 const DependencyManager = require('./dependency-manager');
+const RobustDependencyManager = require('./robust-dependency-manager');
 
 class AppManager {
     constructor() {
@@ -19,6 +20,7 @@ class AppManager {
         this.notifications = new NotificationManager();
         this.updater = null;
         this.dependencyManager = new DependencyManager();
+        this.robustDependencyManager = new RobustDependencyManager();
         
         this.mainWindow = null;
         this.isQuitting = false;
@@ -176,6 +178,9 @@ class AppManager {
         try {
             this.logger.appStart();
             
+            // Configura automaticamente l'ambiente (Python, Node.js, venv)
+            await this.setupEnvironment();
+            
             // Crea la finestra principale
             await this.createMainWindow();
             
@@ -195,6 +200,30 @@ class AppManager {
         } catch (error) {
             this.errorHandler.handleError('app-initialization', error);
             app.quit();
+        }
+    }
+    
+    /**
+     * Configura automaticamente l'ambiente di sviluppo
+     */
+    async setupEnvironment() {
+        try {
+            console.log('🔧 Configurazione automatica ambiente...');
+            
+            // Usa il sistema robusto per configurare tutto
+            const success = await this.robustDependencyManager.setupEnvironment();
+            
+            if (success) {
+                console.log('✅ Ambiente configurato automaticamente');
+                this.notifications.show('Ambiente configurato', 'Python, Node.js e dipendenze installati automaticamente');
+            } else {
+                console.warn('⚠️ Configurazione ambiente fallita, continuo comunque...');
+                this.notifications.show('Configurazione parziale', 'Alcune dipendenze potrebbero non essere disponibili');
+            }
+            
+        } catch (error) {
+            console.error('❌ Errore configurazione ambiente:', error);
+            this.notifications.show('Errore configurazione', 'Controlla che Python e Node.js siano installati');
         }
     }
     
@@ -348,7 +377,10 @@ class AppManager {
                         
                         const managePyPath = path.join(djangoDir, 'manage.py');
                         
-                        console.log('Avvio Django con Python:', deps.python);
+                        // Usa il Python dell'ambiente virtuale se disponibile
+                        const pythonPath = this.robustDependencyManager.getVenvPythonPath() || deps.python;
+                        
+                        console.log('Avvio Django con Python:', pythonPath);
                         console.log('Percorso manage.py:', managePyPath);
                         console.log('Directory di lavoro:', djangoDir);
                         
@@ -357,7 +389,7 @@ class AppManager {
                         env.PYTHONPATH = djangoDir;
                         env.DJANGO_SETTINGS_MODULE = 'config.settings.development';
                         
-                        const djangoProcess = spawn(deps.python, [managePyPath, 'runserver', '--noreload'], {
+                        const djangoProcess = spawn(pythonPath, [managePyPath, 'runserver', '--noreload'], {
                             cwd: djangoDir,
                             stdio: 'pipe',
                             detached: true, // Processo separato
