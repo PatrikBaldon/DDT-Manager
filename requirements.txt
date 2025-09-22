@@ -1,7 +1,7 @@
 # Django Dependencies
 Django==4.2.7
 django-crispy-forms==2.0
-crispy-bootstrap5==0.7
+crispy-bootstrap5==2025.6
 
 # PDF Generation
 reportlab==4.0.4
