@@ -178,11 +178,22 @@ class AppManager {
         try {
             this.logger.appStart();
             
-            // Configura automaticamente l'ambiente (Python, Node.js, venv)
-            await this.setupEnvironment();
-            
-            // Crea la finestra principale
+            // Crea la finestra principale PRIMA di configurare l'ambiente
             await this.createMainWindow();
+            
+            // Configura automaticamente l'ambiente in background (non bloccante)
+            this.setupEnvironment().then(success => {
+                if (success) {
+                    this.notifications.show('Ambiente configurato', 'Python, Node.js e dipendenze installati automaticamente');
+                    // Avvia Django dopo la configurazione
+                    this.initializeDependencies();
+                }
+            }).catch(error => {
+                console.error('Errore configurazione ambiente in background:', error);
+                this.notifications.show('Errore configurazione', 'Controlla che Python e Node.js siano installati');
+                // Prova comunque ad avviare con dipendenze esistenti
+                this.initializeDependencies();
+            });
             
             // Inizializza l'updater se in produzione
             if (process.env.NODE_ENV === 'production') {
@@ -215,15 +226,15 @@ class AppManager {
             
             if (success) {
                 console.log('✅ Ambiente configurato automaticamente');
-                this.notifications.show('Ambiente configurato', 'Python, Node.js e dipendenze installati automaticamente');
+                return true;
             } else {
                 console.warn('⚠️ Configurazione ambiente fallita, continuo comunque...');
-                this.notifications.show('Configurazione parziale', 'Alcune dipendenze potrebbero non essere disponibili');
+                return false;
             }
             
         } catch (error) {
             console.error('❌ Errore configurazione ambiente:', error);
-            this.notifications.show('Errore configurazione', 'Controlla che Python e Node.js siano installati');
+            return false;
         }
     }
     
