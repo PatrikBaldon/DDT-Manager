@@ -38,7 +38,7 @@
   "dependencies": {
     "electron-store": "^8.1.0",
     "electron-updater": "^6.1.7",
-    "node-cron": "^3.0.3",
+    "node-cron": "^4.2.1",
     "date-fns": "^2.30.0"
   },
   "build": {
