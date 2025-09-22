@@ -186,13 +186,13 @@ class AppManager {
                 if (success) {
                     this.notifications.show('Ambiente configurato', 'Python, Node.js e dipendenze installati automaticamente');
                     // Avvia Django dopo la configurazione
-                    this.initializeDependencies();
+                    this.loadDjangoApp();
                 }
             }).catch(error => {
                 console.error('Errore configurazione ambiente in background:', error);
                 this.notifications.show('Errore configurazione', 'Controlla che Python e Node.js siano installati');
                 // Prova comunque ad avviare con dipendenze esistenti
-                this.initializeDependencies();
+                this.loadDjangoApp();
             });
             
             // Inizializza l'updater se in produzione
