@@ -30,7 +30,7 @@
     "icon": "static/images/icons/icon-512x512.png"
   },
   "devDependencies": {
-    "electron": "^28.0.0",
+    "electron": "^38.2.1",
     "electron-builder": "^24.6.4",
     "concurrently": "^8.2.2",
     "wait-on": "^7.2.0"
